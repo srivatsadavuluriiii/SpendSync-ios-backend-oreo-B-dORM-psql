@@ -1,0 +1,6 @@
+Mock Expense Service running on port 3002
+Health endpoint: http://localhost:3002/health
+Get expenses: http://localhost:3002/api/v1/expenses
+Create expense: http://localhost:3002/api/v1/expenses (POST)
+Get balances: http://localhost:3002/api/v1/expenses/balances
+Notification sent successfully

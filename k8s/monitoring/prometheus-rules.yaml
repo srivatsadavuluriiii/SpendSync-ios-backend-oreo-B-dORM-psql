@@ -1,0 +1,68 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: api-key-service-alerts
+  namespace: monitoring
+spec:
+  groups:
+  - name: api-key-service
+    rules:
+    # API Key Usage Alerts
+    - alert: HighAPIKeyUsage
+      expr: rate(spendsync_api_key_requests_total[5m]) > 1000
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: High API key usage detected
+        description: API key usage rate exceeds 1000 requests per 5 minutes
+
+    # Failed Validation Alerts
+    - alert: HighFailedValidations
+      expr: rate(spendsync_api_key_validation_failures_total[5m]) > 10
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: High rate of failed API key validations
+        description: API key validation failures exceed 10 per 5 minutes
+
+    # Key Rotation Alerts
+    - alert: KeyRotationOverdue
+      expr: time() - spendsync_api_key_last_rotation > 86400 * 30
+      for: 1h
+      labels:
+        severity: warning
+      annotations:
+        summary: API key rotation overdue
+        description: API key has not been rotated in over 30 days
+
+    # Rate Limit Alerts
+    - alert: RateLimitExceeded
+      expr: rate(spendsync_api_key_rate_limit_exceeded_total[5m]) > 5
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: Rate limit frequently exceeded
+        description: API key rate limits exceeded more than 5 times in 5 minutes
+
+    # Security Alerts
+    - alert: UnauthorizedAccessAttempts
+      expr: rate(spendsync_api_key_unauthorized_access_total[5m]) > 10
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: High number of unauthorized access attempts
+        description: More than 10 unauthorized access attempts in 5 minutes
+
+    # Service Health
+    - alert: APIKeyServiceDown
+      expr: up{job="api-key-service"} == 0
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: API Key Service is down
+        description: The API key service has been down for more than 5 minutes 

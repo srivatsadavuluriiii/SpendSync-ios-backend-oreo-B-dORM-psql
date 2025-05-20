@@ -1,0 +1,237 @@
+2025-05-20 22:05:00 [[32minfo[39m]: Service registry initialized with 6 services {
+  "service": "api-gateway"
+}
+2025-05-20 22:05:00 [[32minfo[39m]: Garbage collection is available {
+  "service": "api-gateway"
+}
+2025-05-20 22:05:00 [[32minfo[39m]: API Gateway running on port 4000 {
+  "service": "api-gateway"
+}
+2025-05-20 22:05:00 [[32minfo[39m]: Documentation available at http://localhost:4000/api-docs {
+  "service": "api-gateway"
+}
+2025-05-20 22:05:00 [[32minfo[39m]: Health check available at http://localhost:4000/health {
+  "service": "api-gateway"
+}
+2025-05-20 22:05:00 [[32minfo[39m]: Metrics available at http://localhost:4000/metrics {
+  "service": "api-gateway"
+}
+2025-05-20 22:05:00 [[32minfo[39m]: Admin dashboard available at http://localhost:4000/api/v1/dashboard {
+  "service": "api-gateway"
+}
+2025-05-20 22:05:00 [[33mwarn[39m]: Service settlementService is DOWN:  {
+  "service": "api-gateway"
+}
+2025-05-20 22:05:00 [[33mwarn[39m]: Service analyticsService is DOWN:  {
+  "service": "api-gateway"
+}
+2025-05-20 22:05:00 [[33mwarn[39m]: Service paymentService is DOWN:  {
+  "service": "api-gateway"
+}
+2025-05-20 22:05:00 [[34mdebug[39m]: Completed health checks for all services {
+  "service": "api-gateway"
+}
+[32minfo[39m: Garbage collection completed {"current":{"heapUsed":"15.44MB","rss":"78.09MB"},"freed":{"heap":"2.13MB","rss":"-0.23MB"},"service":"api","timestamp":"2025-05-20T16:35:05.829Z"}
+2025-05-20 22:05:05 [[34mdebug[39m]: Request started {
+  "service": "api-gateway",
+  "traceId": "trace-1747758905830-8rdq43rr6",
+  "method": "GET",
+  "url": "/services/status",
+  "headers": {
+    "host": "localhost:4000",
+    "user-agent": "curl/8.7.1",
+    "accept": "*/*"
+  }
+}
+2025-05-20 22:05:05 [[34mdebug[39m]: Cached response for GET:/services/status:anonymous {
+  "service": "api-gateway"
+}
+2025-05-20 22:05:05 [[32minfo[39m]: ::1 - - [20/May/2025:16:35:05 +0000] "GET /services/status HTTP/1.1" 200 1196 "-" "curl/8.7.1" {
+  "service": "api-gateway"
+}
+2025-05-20 22:05:05 [[34mdebug[39m]: Request completed {
+  "service": "api-gateway",
+  "requestId": "trace-1747758905830-rc2ffp73d",
+  "method": "GET",
+  "route": "/services/status",
+  "statusCode": 200,
+  "duration": 0.002187125
+}
+2025-05-20 22:05:10 [[34mdebug[39m]: Completed health checks for all services {
+  "service": "api-gateway"
+}
+2025-05-20 22:05:20 [[33mwarn[39m]: Circuit for settlementService is now open {
+  "service": "api-gateway"
+}
+2025-05-20 22:05:20 [[33mwarn[39m]: Circuit for analyticsService is now open {
+  "service": "api-gateway"
+}
+2025-05-20 22:05:20 [[33mwarn[39m]: Circuit for paymentService is now open {
+  "service": "api-gateway"
+}
+2025-05-20 22:05:20 [[34mdebug[39m]: Completed health checks for all services {
+  "service": "api-gateway"
+}
+2025-05-20 22:05:30 [[34mdebug[39m]: Running scheduled garbage collection {
+  "service": "api-gateway"
+}
+2025-05-20 22:05:30 [[34mdebug[39m]: Completed health checks for all services {
+  "service": "api-gateway"
+}
+2025-05-20 22:05:40 [[34mdebug[39m]: Completed health checks for all services {
+  "service": "api-gateway"
+}
+2025-05-20 22:05:50 [[34mdebug[39m]: Completed health checks for all services {
+  "service": "api-gateway"
+}
+[32minfo[39m: Garbage collection completed {"current":{"heapUsed":"16.05MB","rss":"72.69MB"},"freed":{"heap":"0.36MB","rss":"-0.05MB"},"service":"api","timestamp":"2025-05-20T16:35:53.630Z"}
+2025-05-20 22:05:53 [[34mdebug[39m]: Request started {
+  "service": "api-gateway",
+  "traceId": "trace-1747758953631-uznw0t137",
+  "method": "GET",
+  "url": "/api/v1/notifications/count?userId=1234",
+  "headers": {
+    "host": "localhost:4000",
+    "user-agent": "curl/8.7.1",
+    "accept": "*/*"
+  }
+}
+2025-05-20 22:05:53 [[31merror[39m]: Service forwarding error for notificationService: {
+  "service": "api-gateway",
+  "requestId": "1747758953631",
+  "error": "Request failed with status code 404",
+  "status": 404,
+  "path": "/count"
+}
+2025-05-20 22:05:53 [[33mwarn[39m]: Service notificationService is DOWN: Request failed with status code 404 {
+  "service": "api-gateway"
+}
+2025-05-20 22:05:53 [[32minfo[39m]: ::1 - - [20/May/2025:16:35:53 +0000] "GET /api/v1/notifications/count?userId=1234 HTTP/1.1" 404 1373 "-" "curl/8.7.1" {
+  "service": "api-gateway"
+}
+[33mwarn[39m: High memory usage detected for request {"growth":{"heap":"0MB","rss":"0MB"},"method":"GET","path":"/count","service":"api","timestamp":"2025-05-20T16:35:53.635Z"}
+2025-05-20 22:05:53 [[34mdebug[39m]: Request completed {
+  "service": "api-gateway",
+  "requestId": "trace-1747758953631-nlijwm0p5",
+  "method": "GET",
+  "route": "/api/v1/notifications/count",
+  "statusCode": 404,
+  "duration": 0.00389925
+}
+[32minfo[39m: Garbage collection completed {"current":{"heapUsed":"16.14MB","rss":"73.03MB"},"freed":{"heap":"0.52MB","rss":"0.00MB"},"service":"api","timestamp":"2025-05-20T16:35:58.739Z"}
+2025-05-20 22:05:58 [[34mdebug[39m]: Request started {
+  "service": "api-gateway",
+  "traceId": "trace-1747758958739-9yw8gebs7",
+  "method": "GET",
+  "url": "/admin/memory",
+  "headers": {
+    "host": "localhost:4000",
+    "user-agent": "curl/8.7.1",
+    "accept": "*/*"
+  }
+}
+2025-05-20 22:05:58 [[33mwarn[39m]: Client error {
+  "service": "api-gateway",
+  "error": {
+    "name": "NotFoundError",
+    "message": "Route not found: GET /admin/memory",
+    "status": 404
+  },
+  "request": {
+    "method": "GET",
+    "url": "/admin/memory",
+    "headers": {
+      "host": "localhost:4000",
+      "user-agent": "curl/8.7.1",
+      "accept": "*/*"
+    },
+    "body": {},
+    "query": {},
+    "params": {}
+  }
+}
+2025-05-20 22:05:58 [[32minfo[39m]: ::1 - - [20/May/2025:16:35:58 +0000] "GET /admin/memory HTTP/1.1" 404 1554 "-" "curl/8.7.1" {
+  "service": "api-gateway"
+}
+2025-05-20 22:05:58 [[34mdebug[39m]: Request completed {
+  "service": "api-gateway",
+  "requestId": "trace-1747758958739-cjjb60yfh",
+  "method": "GET",
+  "route": "/admin/memory",
+  "statusCode": 404,
+  "duration": 0.000844917
+}
+[33mwarn[39m: Alert triggered Memory usage critical {"data":{"free":140722176,"total":8589934592,"usage":0.9836177825927734,"used":8449212416},"service":"api","timestamp":"2025-05-20T16:36:00.139Z"}
+2025-05-20 22:06:00 [[34mdebug[39m]: Running scheduled garbage collection {
+  "service": "api-gateway"
+}
+2025-05-20 22:06:00 [[32minfo[39m]: Circuit for settlementService is now half-open {
+  "service": "api-gateway"
+}
+2025-05-20 22:06:00 [[32minfo[39m]: Circuit for analyticsService is now half-open {
+  "service": "api-gateway"
+}
+2025-05-20 22:06:00 [[32minfo[39m]: Circuit for paymentService is now half-open {
+  "service": "api-gateway"
+}
+2025-05-20 22:06:00 [[33mwarn[39m]: Circuit for settlementService returned to open state {
+  "service": "api-gateway"
+}
+2025-05-20 22:06:00 [[33mwarn[39m]: Circuit for analyticsService returned to open state {
+  "service": "api-gateway"
+}
+2025-05-20 22:06:00 [[33mwarn[39m]: Circuit for paymentService returned to open state {
+  "service": "api-gateway"
+}
+2025-05-20 22:06:00 [[32minfo[39m]: Service notificationService is now UP {
+  "service": "api-gateway"
+}
+2025-05-20 22:06:00 [[34mdebug[39m]: Completed health checks for all services {
+  "service": "api-gateway"
+}
+[32minfo[39m: Garbage collection completed {"current":{"heapUsed":"16.17MB","rss":"73.13MB"},"freed":{"heap":"0.76MB","rss":"0.00MB"},"service":"api","timestamp":"2025-05-20T16:36:04.649Z"}
+2025-05-20 22:06:04 [[34mdebug[39m]: Request started {
+  "service": "api-gateway",
+  "traceId": "trace-1747758964649-fx3ash3vk",
+  "method": "GET",
+  "url": "/dashboard/",
+  "headers": {
+    "host": "localhost:4000",
+    "user-agent": "curl/8.7.1",
+    "accept": "*/*"
+  }
+}
+2025-05-20 22:06:04 [[33mwarn[39m]: Client error {
+  "service": "api-gateway",
+  "error": {
+    "name": "NotFoundError",
+    "message": "Route not found: GET /dashboard/",
+    "status": 404
+  },
+  "request": {
+    "method": "GET",
+    "url": "/dashboard/",
+    "headers": {
+      "host": "localhost:4000",
+      "user-agent": "curl/8.7.1",
+      "accept": "*/*"
+    },
+    "body": {},
+    "query": {},
+    "params": {}
+  }
+}
+2025-05-20 22:06:04 [[32minfo[39m]: ::1 - - [20/May/2025:16:36:04 +0000] "GET /dashboard/ HTTP/1.1" 404 1550 "-" "curl/8.7.1" {
+  "service": "api-gateway"
+}
+2025-05-20 22:06:04 [[34mdebug[39m]: Request completed {
+  "service": "api-gateway",
+  "requestId": "trace-1747758964650-bl9lmjjxg",
+  "method": "GET",
+  "route": "/dashboard/",
+  "statusCode": 404,
+  "duration": 0.000555
+}
+2025-05-20 22:06:10 [[34mdebug[39m]: Completed health checks for all services {
+  "service": "api-gateway"
+}

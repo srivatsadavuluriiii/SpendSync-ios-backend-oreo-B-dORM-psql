@@ -1,0 +1,85 @@
+{
+  "consumer": {
+    "name": "ApiGateway"
+  },
+  "provider": {
+    "name": "UserService"
+  },
+  "interactions": [
+    {
+      "description": "a request to get user details for user with ID 1",
+      "providerState": "User with ID 1 exists",
+      "request": {
+        "method": "GET",
+        "path": "/users/1",
+        "headers": {
+          "Accept": "application/json"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        "body": {
+          "id": "1",
+          "username": "testuser",
+          "email": "testuser@example.com",
+          "createdAt": "2024-01-01T00:00:00.000Z"
+        },
+        "matchingRules": {
+          "body": {
+            "$.id": {
+              "match": "type"
+            },
+            "$.username": {
+              "match": "type"
+            },
+            "$.email": {
+              "match": "type"
+            },
+            "$.createdAt": {
+              "match": "type"
+            }
+          }
+        }
+      }
+    },
+    {
+      "description": "a request to get user details for user with ID 999",
+      "providerState": "User with ID 999 does not exist",
+      "request": {
+        "method": "GET",
+        "path": "/users/999",
+        "headers": {
+          "Accept": "application/json"
+        }
+      },
+      "response": {
+        "status": 404,
+        "headers": {
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        "body": {
+          "error": "User not found",
+          "message": "User with ID 999 not found"
+        },
+        "matchingRules": {
+          "body": {
+            "$.error": {
+              "match": "type"
+            },
+            "$.message": {
+              "match": "type"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "2.0.0"
+    }
+  }
+} 

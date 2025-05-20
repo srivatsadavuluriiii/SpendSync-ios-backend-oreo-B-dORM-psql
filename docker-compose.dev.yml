@@ -1,0 +1,127 @@
+version: '3.8'
+
+services:
+  # MongoDB database
+  mongodb:
+    image: mongo:5.0
+    container_name: spendsync-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./docker/mongodb/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=example
+    networks:
+      - spendsync-network
+
+  # API Gateway
+  api-gateway:
+    image: spendsync/api-gateway:${TAG:-develop}
+    container_name: spendsync-api-gateway
+    restart: always
+    ports:
+      - "${API_GATEWAY_PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - PORT=3000
+      - USER_SERVICE_URL=http://user-service:3001
+      - EXPENSE_SERVICE_URL=http://expense-service:3002
+      - SETTLEMENT_SERVICE_URL=http://settlement-service:3003
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3004
+      - JWT_SECRET=${JWT_SECRET}
+      - CORS_ORIGIN=${CORS_ORIGIN:-*}
+    depends_on:
+      - user-service
+      - expense-service
+      - settlement-service
+      - notification-service
+    networks:
+      - spendsync-network
+
+  # User Service
+  user-service:
+    image: spendsync/user-service:${TAG:-develop}
+    container_name: spendsync-user-service
+    restart: always
+    ports:
+      - "${USER_SERVICE_PORT:-3001}:3001"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - PORT=3001
+      - MONGODB_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/spendsync_users
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - mongodb
+    networks:
+      - spendsync-network
+
+  # Expense Service
+  expense-service:
+    image: spendsync/expense-service:${TAG:-develop}
+    container_name: spendsync-expense-service
+    restart: always
+    ports:
+      - "${EXPENSE_SERVICE_PORT:-3002}:3002"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - PORT=3002
+      - MONGODB_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/spendsync_expenses
+      - USER_SERVICE_URL=http://user-service:3001
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3004
+    depends_on:
+      - mongodb
+      - user-service
+    networks:
+      - spendsync-network
+
+  # Settlement Service
+  settlement-service:
+    image: spendsync/settlement-service:${TAG:-develop}
+    container_name: spendsync-settlement-service
+    restart: always
+    ports:
+      - "${SETTLEMENT_SERVICE_PORT:-3003}:3003"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - PORT=3003
+      - MONGODB_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/spendsync_settlements
+      - EXPENSE_SERVICE_URL=http://expense-service:3002
+      - USER_SERVICE_URL=http://user-service:3001
+    depends_on:
+      - mongodb
+      - expense-service
+    networks:
+      - spendsync-network
+
+  # Notification Service
+  notification-service:
+    image: spendsync/notification-service:${TAG:-develop}
+    container_name: spendsync-notification-service
+    restart: always
+    ports:
+      - "${NOTIFICATION_SERVICE_PORT:-3004}:3004"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - PORT=3004
+      - MONGODB_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/spendsync_notifications
+      - USER_SERVICE_URL=http://user-service:3001
+      - EMAIL_HOST=${EMAIL_HOST:-mailhog}
+      - EMAIL_PORT=${EMAIL_PORT:-1025}
+      - EMAIL_SECURE=${EMAIL_SECURE:-false}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - EMAIL_FROM=${EMAIL_FROM:-noreply@spendsync.app}
+    depends_on:
+      - mongodb
+    networks:
+      - spendsync-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  spendsync-network:
+    driver: bridge 

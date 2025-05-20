@@ -1,0 +1,11 @@
+{"level":"info","message":"payment-service listening on port 3004","timestamp":"2025-05-18T16:34:18.695Z"}
+{"level":"info","message":"MongoDB Connected: localhost","timestamp":"2025-05-18T16:34:18.718Z"}
+{"level":"warn","message":"MongoDB disconnected","timestamp":"2025-05-18T16:35:10.915Z"}
+{"level":"info","message":"payment-service listening on port 3004","timestamp":"2025-05-18T16:37:07.121Z"}
+{"level":"info","message":"MongoDB Connected: localhost","timestamp":"2025-05-18T16:37:07.144Z"}
+{"level":"info","message":"payment-service listening on port 3004","timestamp":"2025-05-18T16:38:06.794Z"}
+{"level":"info","message":"MongoDB Connected: localhost","timestamp":"2025-05-18T16:38:06.800Z"}
+{"level":"warn","message":"MongoDB disconnected","timestamp":"2025-05-18T16:43:56.624Z"}
+{"level":"info","message":"payment-service listening on port 3004","timestamp":"2025-05-18T16:44:29.621Z"}
+{"level":"info","message":"MongoDB Connected: localhost","timestamp":"2025-05-18T16:44:29.635Z"}
+{"level":"warn","message":"MongoDB disconnected","timestamp":"2025-05-18T17:22:41.662Z"}

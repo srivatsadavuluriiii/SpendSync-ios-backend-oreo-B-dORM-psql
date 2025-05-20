@@ -1,0 +1,33 @@
+{
+  "ignore": [
+    "node_modules/**/node_modules",
+    "dist",
+    "coverage",
+    "*.test.js",
+    "*.spec.js",
+    "tests/*",
+    "docs/*",
+    ".git",
+    "logs/*"
+  ],
+  "ext": "js,json,ts",
+  "delay": "2500",
+  "verbose": true,
+  "watch": ["src/"],
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "execMap": {
+    "ts": "node -r ts-node/register",
+    "js": "node --trace-warnings"
+  },
+  "events": {
+    "restart": "kill-port 3000 3001 3002 3003 3004 3005 3006",
+    "crash": "kill-port 3000 3001 3002 3003 3004 3005 3006"
+  },
+  "restartable": "rs",
+  "signal": "SIGTERM",
+  "stdout": true,
+  "stderr": true,
+  "legacyWatch": true
+} 

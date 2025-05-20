@@ -1,0 +1,101 @@
+"use strict"; /**
+ * Authentication Controller
+ * 
+ * Handles authentication operations like login, register, refresh token
+ */
+
+const { authService } = require('../middleware/auth.middleware');
+
+/**
+ * Register a new user
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const register = async (req, res) => {
+  // For demo purposes, return a mock successful registration
+  res.status(201).json({
+    success: true,
+    message: 'User registered successfully',
+    user: {
+      id: 'new-user-id',
+      username: req.body.username || 'demo-user',
+      email: req.body.email || 'demo@example.com'
+    }
+  });
+};
+
+/**
+ * Login a user
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const login = async (req, res) => {
+  const { username, password } = req.body;
+
+  // Use the auth service to authenticate the user
+  const authResult = authService.authenticate(username || 'demo', password || 'password');
+
+  res.json({
+    success: true,
+    message: 'Login successful',
+    accessToken: authResult.accessToken,
+    refreshToken: authResult.refreshToken,
+    user: authResult.user
+  });
+};
+
+/**
+ * Refresh access token
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const refreshToken = async (req, res) => {
+  // For demo purposes, generate a new token
+  const mockUser = {
+    id: 'demo-user-1',
+    username: 'demo',
+    email: 'demo@example.com',
+    roles: ['user']
+  };
+
+  const accessToken = authService.generateToken(mockUser);
+
+  res.json({
+    success: true,
+    accessToken
+  });
+};
+
+/**
+ * Logout a user
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const logout = async (req, res) => {
+  res.json({
+    success: true,
+    message: 'Logged out successfully'
+  });
+};
+
+/**
+ * Get current user profile
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const getCurrentUser = async (req, res) => {
+  // User is already attached to req by auth middleware
+  res.json({
+    success: true,
+    user: req.user
+  });
+};
+
+module.exports = {
+  register,
+  login,
+  refreshToken,
+  logout,
+  getCurrentUser
+};
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJhdXRoU2VydmljZSIsInJlcXVpcmUiLCJyZWdpc3RlciIsInJlcSIsInJlcyIsInN0YXR1cyIsImpzb24iLCJzdWNjZXNzIiwibWVzc2FnZSIsInVzZXIiLCJpZCIsInVzZXJuYW1lIiwiYm9keSIsImVtYWlsIiwibG9naW4iLCJwYXNzd29yZCIsImF1dGhSZXN1bHQiLCJhdXRoZW50aWNhdGUiLCJhY2Nlc3NUb2tlbiIsInJlZnJlc2hUb2tlbiIsIm1vY2tVc2VyIiwicm9sZXMiLCJnZW5lcmF0ZVRva2VuIiwibG9nb3V0IiwiZ2V0Q3VycmVudFVzZXIiLCJtb2R1bGUiLCJleHBvcnRzIl0sInNvdXJjZXMiOlsiLi4vLi4vLi4vc3JjL2FwaS1nYXRld2F5L2NvbnRyb2xsZXJzL2F1dGguY29udHJvbGxlci5qcyJdLCJzb3VyY2VzQ29udGVudCI6WyIvKipcbiAqIEF1dGhlbnRpY2F0aW9uIENvbnRyb2xsZXJcbiAqIFxuICogSGFuZGxlcyBhdXRoZW50aWNhdGlvbiBvcGVyYXRpb25zIGxpa2UgbG9naW4sIHJlZ2lzdGVyLCByZWZyZXNoIHRva2VuXG4gKi9cblxuY29uc3QgeyBhdXRoU2VydmljZSB9ID0gcmVxdWlyZSgnLi4vbWlkZGxld2FyZS9hdXRoLm1pZGRsZXdhcmUnKTtcblxuLyoqXG4gKiBSZWdpc3RlciBhIG5ldyB1c2VyXG4gKiBAcGFyYW0ge09iamVjdH0gcmVxIC0gRXhwcmVzcyByZXF1ZXN0IG9iamVjdFxuICogQHBhcmFtIHtPYmplY3R9IHJlcyAtIEV4cHJlc3MgcmVzcG9uc2Ugb2JqZWN0XG4gKi9cbmNvbnN0IHJlZ2lzdGVyID0gYXN5bmMgKHJlcSwgcmVzKSA9PiB7XG4gIC8vIEZvciBkZW1vIHB1cnBvc2VzLCByZXR1cm4gYSBtb2NrIHN1Y2Nlc3NmdWwgcmVnaXN0cmF0aW9uXG4gIHJlcy5zdGF0dXMoMjAxKS5qc29uKHtcbiAgICBzdWNjZXNzOiB0cnVlLFxuICAgIG1lc3NhZ2U6ICdVc2VyIHJlZ2lzdGVyZWQgc3VjY2Vzc2Z1bGx5JyxcbiAgICB1c2VyOiB7XG4gICAgICBpZDogJ25ldy11c2VyLWlkJyxcbiAgICAgIHVzZXJuYW1lOiByZXEuYm9keS51c2VybmFtZSB8fCAnZGVtby11c2VyJyxcbiAgICAgIGVtYWlsOiByZXEuYm9keS5lbWFpbCB8fCAnZGVtb0BleGFtcGxlLmNvbSdcbiAgICB9XG4gIH0pO1xufTtcblxuLyoqXG4gKiBMb2dpbiBhIHVzZXJcbiAqIEBwYXJhbSB7T2JqZWN0fSByZXEgLSBFeHByZXNzIHJlcXVlc3Qgb2JqZWN0XG4gKiBAcGFyYW0ge09iamVjdH0gcmVzIC0gRXhwcmVzcyByZXNwb25zZSBvYmplY3RcbiAqL1xuY29uc3QgbG9naW4gPSBhc3luYyAocmVxLCByZXMpID0+IHtcbiAgY29uc3QgeyB1c2VybmFtZSwgcGFzc3dvcmQgfSA9IHJlcS5ib2R5O1xuICBcbiAgLy8gVXNlIHRoZSBhdXRoIHNlcnZpY2UgdG8gYXV0aGVudGljYXRlIHRoZSB1c2VyXG4gIGNvbnN0IGF1dGhSZXN1bHQgPSBhdXRoU2VydmljZS5hdXRoZW50aWNhdGUodXNlcm5hbWUgfHwgJ2RlbW8nLCBwYXNzd29yZCB8fCAncGFzc3dvcmQnKTtcbiAgXG4gIHJlcy5qc29uKHtcbiAgICBzdWNjZXNzOiB0cnVlLFxuICAgIG1lc3NhZ2U6ICdMb2dpbiBzdWNjZXNzZnVsJyxcbiAgICBhY2Nlc3NUb2tlbjogYXV0aFJlc3VsdC5hY2Nlc3NUb2tlbixcbiAgICByZWZyZXNoVG9rZW46IGF1dGhSZXN1bHQucmVmcmVzaFRva2VuLFxuICAgIHVzZXI6IGF1dGhSZXN1bHQudXNlclxuICB9KTtcbn07XG5cbi8qKlxuICogUmVmcmVzaCBhY2Nlc3MgdG9rZW5cbiAqIEBwYXJhbSB7T2JqZWN0fSByZXEgLSBFeHByZXNzIHJlcXVlc3Qgb2JqZWN0XG4gKiBAcGFyYW0ge09iamVjdH0gcmVzIC0gRXhwcmVzcyByZXNwb25zZSBvYmplY3RcbiAqL1xuY29uc3QgcmVmcmVzaFRva2VuID0gYXN5bmMgKHJlcSwgcmVzKSA9PiB7XG4gIC8vIEZvciBkZW1vIHB1cnBvc2VzLCBnZW5lcmF0ZSBhIG5ldyB0b2tlblxuICBjb25zdCBtb2NrVXNlciA9IHtcbiAgICBpZDogJ2RlbW8tdXNlci0xJyxcbiAgICB1c2VybmFtZTogJ2RlbW8nLFxuICAgIGVtYWlsOiAnZGVtb0BleGFtcGxlLmNvbScsXG4gICAgcm9sZXM6IFsndXNlciddXG4gIH07XG4gIFxuICBjb25zdCBhY2Nlc3NUb2tlbiA9IGF1dGhTZXJ2aWNlLmdlbmVyYXRlVG9rZW4obW9ja1VzZXIpO1xuICBcbiAgcmVzLmpzb24oe1xuICAgIHN1Y2Nlc3M6IHRydWUsXG4gICAgYWNjZXNzVG9rZW5cbiAgfSk7XG59O1xuXG4vKipcbiAqIExvZ291dCBhIHVzZXJcbiAqIEBwYXJhbSB7T2JqZWN0fSByZXEgLSBFeHByZXNzIHJlcXVlc3Qgb2JqZWN0XG4gKiBAcGFyYW0ge09iamVjdH0gcmVzIC0gRXhwcmVzcyByZXNwb25zZSBvYmplY3RcbiAqL1xuY29uc3QgbG9nb3V0ID0gYXN5bmMgKHJlcSwgcmVzKSA9PiB7XG4gIHJlcy5qc29uKHtcbiAgICBzdWNjZXNzOiB0cnVlLFxuICAgIG1lc3NhZ2U6ICdMb2dnZWQgb3V0IHN1Y2Nlc3NmdWxseSdcbiAgfSk7XG59O1xuXG4vKipcbiAqIEdldCBjdXJyZW50IHVzZXIgcHJvZmlsZVxuICogQHBhcmFtIHtPYmplY3R9IHJlcSAtIEV4cHJlc3MgcmVxdWVzdCBvYmplY3RcbiAqIEBwYXJhbSB7T2JqZWN0fSByZXMgLSBFeHByZXNzIHJlc3BvbnNlIG9iamVjdFxuICovXG5jb25zdCBnZXRDdXJyZW50VXNlciA9IGFzeW5jIChyZXEsIHJlcykgPT4ge1xuICAvLyBVc2VyIGlzIGFscmVhZHkgYXR0YWNoZWQgdG8gcmVxIGJ5IGF1dGggbWlkZGxld2FyZVxuICByZXMuanNvbih7XG4gICAgc3VjY2VzczogdHJ1ZSxcbiAgICB1c2VyOiByZXEudXNlclxuICB9KTtcbn07XG5cbm1vZHVsZS5leHBvcnRzID0ge1xuICByZWdpc3RlcixcbiAgbG9naW4sXG4gIHJlZnJlc2hUb2tlbixcbiAgbG9nb3V0LFxuICBnZXRDdXJyZW50VXNlclxufTsgIl0sIm1hcHBpbmdzIjoiY0FBQTtBQUNBO0FBQ0E7QUFDQTtBQUNBOztBQUVBLE1BQU0sRUFBRUEsV0FBVyxDQUFDLENBQUMsR0FBR0MsT0FBTyxDQUFDLCtCQUErQixDQUFDOztBQUVoRTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0EsTUFBTUMsUUFBUSxHQUFHLE1BQUFBLENBQU9DLEdBQUcsRUFBRUMsR0FBRyxLQUFLO0VBQ25DO0VBQ0FBLEdBQUcsQ0FBQ0MsTUFBTSxDQUFDLEdBQUcsQ0FBQyxDQUFDQyxJQUFJLENBQUM7SUFDbkJDLE9BQU8sRUFBRSxJQUFJO0lBQ2JDLE9BQU8sRUFBRSw4QkFBOEI7SUFDdkNDLElBQUksRUFBRTtNQUNKQyxFQUFFLEVBQUUsYUFBYTtNQUNqQkMsUUFBUSxFQUFFUixHQUFHLENBQUNTLElBQUksQ0FBQ0QsUUFBUSxJQUFJLFdBQVc7TUFDMUNFLEtBQUssRUFBRVYsR0FBRyxDQUFDUyxJQUFJLENBQUNDLEtBQUssSUFBSTtJQUMzQjtFQUNGLENBQUMsQ0FBQztBQUNKLENBQUM7O0FBRUQ7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBLE1BQU1DLEtBQUssR0FBRyxNQUFBQSxDQUFPWCxHQUFHLEVBQUVDLEdBQUcsS0FBSztFQUNoQyxNQUFNLEVBQUVPLFFBQVEsRUFBRUksUUFBUSxDQUFDLENBQUMsR0FBR1osR0FBRyxDQUFDUyxJQUFJOztFQUV2QztFQUNBLE1BQU1JLFVBQVUsR0FBR2hCLFdBQVcsQ0FBQ2lCLFlBQVksQ0FBQ04sUUFBUSxJQUFJLE1BQU0sRUFBRUksUUFBUSxJQUFJLFVBQVUsQ0FBQzs7RUFFdkZYLEdBQUcsQ0FBQ0UsSUFBSSxDQUFDO0lBQ1BDLE9BQU8sRUFBRSxJQUFJO0lBQ2JDLE9BQU8sRUFBRSxrQkFBa0I7SUFDM0JVLFdBQVcsRUFBRUYsVUFBVSxDQUFDRSxXQUFXO0lBQ25DQyxZQUFZLEVBQUVILFVBQVUsQ0FBQ0csWUFBWTtJQUNyQ1YsSUFBSSxFQUFFTyxVQUFVLENBQUNQO0VBQ25CLENBQUMsQ0FBQztBQUNKLENBQUM7O0FBRUQ7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBLE1BQU1VLFlBQVksR0FBRyxNQUFBQSxDQUFPaEIsR0FBRyxFQUFFQyxHQUFHLEtBQUs7RUFDdkM7RUFDQSxNQUFNZ0IsUUFBUSxHQUFHO0lBQ2ZWLEVBQUUsRUFBRSxhQUFhO0lBQ2pCQyxRQUFRLEVBQUUsTUFBTTtJQUNoQkUsS0FBSyxFQUFFLGtCQUFrQjtJQUN6QlEsS0FBSyxFQUFFLENBQUMsTUFBTTtFQUNoQixDQUFDOztFQUVELE1BQU1ILFdBQVcsR0FBR2xCLFdBQVcsQ0FBQ3NCLGFBQWEsQ0FBQ0YsUUFBUSxDQUFDOztFQUV2RGhCLEdBQUcsQ0FBQ0UsSUFBSSxDQUFDO0lBQ1BDLE9BQU8sRUFBRSxJQUFJO0lBQ2JXO0VBQ0YsQ0FBQyxDQUFDO0FBQ0osQ0FBQzs7QUFFRDtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0EsTUFBTUssTUFBTSxHQUFHLE1BQUFBLENBQU9wQixHQUFHLEVBQUVDLEdBQUcsS0FBSztFQUNqQ0EsR0FBRyxDQUFDRSxJQUFJLENBQUM7SUFDUEMsT0FBTyxFQUFFLElBQUk7SUFDYkMsT0FBTyxFQUFFO0VBQ1gsQ0FBQyxDQUFDO0FBQ0osQ0FBQzs7QUFFRDtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0EsTUFBTWdCLGNBQWMsR0FBRyxNQUFBQSxDQUFPckIsR0FBRyxFQUFFQyxHQUFHLEtBQUs7RUFDekM7RUFDQUEsR0FBRyxDQUFDRSxJQUFJLENBQUM7SUFDUEMsT0FBTyxFQUFFLElBQUk7SUFDYkUsSUFBSSxFQUFFTixHQUFHLENBQUNNO0VBQ1osQ0FBQyxDQUFDO0FBQ0osQ0FBQzs7QUFFRGdCLE1BQU0sQ0FBQ0MsT0FBTyxHQUFHO0VBQ2Z4QixRQUFRO0VBQ1JZLEtBQUs7RUFDTEssWUFBWTtFQUNaSSxNQUFNO0VBQ05DO0FBQ0YsQ0FBQyIsImlnbm9yZUxpc3QiOltdfQ==

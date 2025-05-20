@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  pact-tests:
+    build:
+      context: .
+      dockerfile: docker/pact-arm64.Dockerfile
+    volumes:
+      - ./pacts:/app/pacts
+      - ./logs:/app/logs
+    environment:
+      - NODE_ENV=test
+    ports:
+      - "1234:1234" # Port for Pact mock server 

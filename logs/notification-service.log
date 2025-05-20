@@ -1,0 +1,6 @@
+Mock Notification Service running on port 3004
+Health endpoint: http://localhost:3004/health
+Get notifications: http://localhost:3004/api/v1/notifications?userId=123
+Create notification: http://localhost:3004/api/v1/notifications (POST)
+Mark as read: http://localhost:3004/api/v1/notifications/123/read?userId=456 (PUT)
+Get counts: http://localhost:3004/api/v1/notifications/count?userId=123

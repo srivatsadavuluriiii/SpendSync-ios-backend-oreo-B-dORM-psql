@@ -1,0 +1,224 @@
+name: SpendSync CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run lint
+
+  test:
+    name: Run Tests
+    needs: lint
+    runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo:5.0
+        ports:
+          - 27017:27017
+        env:
+          MONGO_INITDB_ROOT_USERNAME: spendsync
+          MONGO_INITDB_ROOT_PASSWORD: spendsyncdev
+        options: >-
+          --health-cmd "echo 'db.runCommand({serverStatus:1})' | mongosh --quiet"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm run test:unit
+        env:
+          MONGODB_URI: mongodb://spendsync:spendsyncdev@localhost:27017/spendsync_test
+          JWT_SECRET: test-jwt-secret
+          NODE_ENV: test
+
+      - name: Run integration tests
+        run: npm run test:integration
+        env:
+          MONGODB_URI: mongodb://spendsync:spendsyncdev@localhost:27017/spendsync_test
+          JWT_SECRET: test-jwt-secret
+          NODE_ENV: test
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          directory: ./coverage
+
+  build:
+    name: Build Docker Images
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Extract metadata for API Gateway
+        id: meta-api-gateway
+        uses: docker/metadata-action@v4
+        with:
+          images: spendsync/api-gateway
+          tags: |
+            type=ref,event=branch
+            type=sha,format=short
+
+      - name: Build and push API Gateway
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./docker/api-gateway/Dockerfile
+          push: true
+          tags: ${{ steps.meta-api-gateway.outputs.tags }}
+          labels: ${{ steps.meta-api-gateway.outputs.labels }}
+          cache-from: type=registry,ref=spendsync/api-gateway:buildcache
+          cache-to: type=registry,ref=spendsync/api-gateway:buildcache,mode=max
+
+      - name: Extract metadata for User Service
+        id: meta-user-service
+        uses: docker/metadata-action@v4
+        with:
+          images: spendsync/user-service
+          tags: |
+            type=ref,event=branch
+            type=sha,format=short
+
+      - name: Build and push User Service
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./docker/user-service/Dockerfile
+          push: true
+          tags: ${{ steps.meta-user-service.outputs.tags }}
+          labels: ${{ steps.meta-user-service.outputs.labels }}
+          cache-from: type=registry,ref=spendsync/user-service:buildcache
+          cache-to: type=registry,ref=spendsync/user-service:buildcache,mode=max
+
+      - name: Extract metadata for Expense Service
+        id: meta-expense-service
+        uses: docker/metadata-action@v4
+        with:
+          images: spendsync/expense-service
+          tags: |
+            type=ref,event=branch
+            type=sha,format=short
+
+      - name: Build and push Expense Service
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./docker/expense-service/Dockerfile
+          push: true
+          tags: ${{ steps.meta-expense-service.outputs.tags }}
+          labels: ${{ steps.meta-expense-service.outputs.labels }}
+          cache-from: type=registry,ref=spendsync/expense-service:buildcache
+          cache-to: type=registry,ref=spendsync/expense-service:buildcache,mode=max
+
+      - name: Extract metadata for Settlement Service
+        id: meta-settlement-service
+        uses: docker/metadata-action@v4
+        with:
+          images: spendsync/settlement-service
+          tags: |
+            type=ref,event=branch
+            type=sha,format=short
+
+      - name: Build and push Settlement Service
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./docker/settlement-service/Dockerfile
+          push: true
+          tags: ${{ steps.meta-settlement-service.outputs.tags }}
+          labels: ${{ steps.meta-settlement-service.outputs.labels }}
+          cache-from: type=registry,ref=spendsync/settlement-service:buildcache
+          cache-to: type=registry,ref=spendsync/settlement-service:buildcache,mode=max
+
+      - name: Extract metadata for Notification Service
+        id: meta-notification-service
+        uses: docker/metadata-action@v4
+        with:
+          images: spendsync/notification-service
+          tags: |
+            type=ref,event=branch
+            type=sha,format=short
+
+      - name: Build and push Notification Service
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./docker/notification-service/Dockerfile
+          push: true
+          tags: ${{ steps.meta-notification-service.outputs.tags }}
+          labels: ${{ steps.meta-notification-service.outputs.labels }}
+          cache-from: type=registry,ref=spendsync/notification-service:buildcache
+          cache-to: type=registry,ref=spendsync/notification-service:buildcache,mode=max
+
+  deploy-dev:
+    name: Deploy to Development
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+    environment: development
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+          
+      - name: Create deployment directory
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "mkdir -p ~/spendsync-dev"
+          
+      - name: Copy docker-compose file
+        run: |
+          scp ./docker-compose.dev.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/spendsync-dev/docker-compose.yml
+          scp ./.env.dev ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/spendsync-dev/.env
+          
+      - name: Deploy to development server
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ~/spendsync-dev && docker-compose pull && docker-compose up -d" 

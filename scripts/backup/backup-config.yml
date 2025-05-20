@@ -1,0 +1,47 @@
+backup:
+  schedules:
+    # Full backup schedule
+    full:
+      frequency: "0 0 * * 0"  # Every Sunday at midnight
+      type: "full"
+      retention: "4 weeks"
+      
+    # Incremental backup schedule
+    incremental:
+      frequency: "0 0 * * 1-6"  # Monday-Saturday at midnight
+      type: "incremental"
+      retention: "7 days"
+      
+    # Transaction log backup schedule
+    transaction_logs:
+      frequency: "0 */4 * * *"  # Every 4 hours
+      type: "transaction_logs"
+      retention: "48 hours"
+
+storage:
+  primary:
+    type: "s3"
+    bucket: "spendsync-backups"
+    region: "us-west-2"
+    path: "production/backups"
+    
+  secondary:
+    type: "s3"
+    bucket: "spendsync-dr-backups"
+    region: "us-east-1"
+    path: "production/backups"
+
+encryption:
+  algorithm: "AES-256"
+  key_management: "aws-kms"
+  kms_key_id: "alias/spendsync-backup-key"
+
+monitoring:
+  prometheus_metrics: true
+  alert_on_failure: true
+  health_check_frequency: "*/30 * * * *"  # Every 30 minutes
+
+disaster_recovery:
+  rto: "4 hours"  # Recovery Time Objective
+  rpo: "4 hours"  # Recovery Point Objective
+  test_schedule: "0 0 1 * *"  # Monthly DR testing 

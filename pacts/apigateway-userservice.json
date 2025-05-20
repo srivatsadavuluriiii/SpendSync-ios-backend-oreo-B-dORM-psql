@@ -1,0 +1,134 @@
+{
+  "consumer": {
+    "name": "ApiGateway"
+  },
+  "interactions": [
+    {
+      "description": "a request for a user with ID 1",
+      "providerState": "a user with ID 1 exists",
+      "request": {
+        "headers": {
+          "Accept": "application/json"
+        },
+        "method": "GET",
+        "path": "/users/1"
+      },
+      "response": {
+        "body": {
+          "data": {
+            "email": "user1@example.com",
+            "firstName": "Test",
+            "id": "1",
+            "lastName": "User"
+          },
+          "success": true
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.data.createdAt": {
+            "match": "type"
+          },
+          "$.body.data.email": {
+            "match": "type"
+          },
+          "$.body.data.firstName": {
+            "match": "type"
+          },
+          "$.body.data.id": {
+            "match": "type"
+          },
+          "$.body.data.lastName": {
+            "match": "type"
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request for a non-existent user",
+      "providerState": "a user with ID 999 does not exist",
+      "request": {
+        "headers": {
+          "Accept": "application/json"
+        },
+        "method": "GET",
+        "path": "/users/999"
+      },
+      "response": {
+        "body": {
+          "error": {
+            "code": "USER_NOT_FOUND",
+            "message": "User not found"
+          },
+          "success": false
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.error.code": {
+            "match": "type"
+          },
+          "$.body.error.message": {
+            "match": "type"
+          }
+        },
+        "status": 404
+      }
+    },
+    {
+      "description": "a request to get user details",
+      "providerState": "a user with ID 1 exists",
+      "request": {
+        "headers": {
+          "Accept": "application/json"
+        },
+        "method": "GET",
+        "path": "/api/users/1"
+      },
+      "response": {
+        "body": {
+          "data": {
+            "service": "userService",
+            "user": {
+              "createdAt": "2024-01-01T00:00:00.000Z",
+              "email": "testuser@example.com",
+              "id": "1",
+              "username": "testuser"
+            }
+          },
+          "success": true
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body": {
+            "match": "type"
+          },
+          "$.body.data.user.createdAt": {
+            "match": "type"
+          }
+        },
+        "status": 200
+      }
+    }
+  ],
+  "metadata": {
+    "pact-js": {
+      "version": "15.0.1"
+    },
+    "pactRust": {
+      "ffi": "0.4.22",
+      "models": "1.2.3"
+    },
+    "pactSpecification": {
+      "version": "2.0.0"
+    }
+  },
+  "provider": {
+    "name": "UserService"
+  }
+}

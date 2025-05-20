@@ -1,0 +1,4 @@
+Mock User Service running on port 3001
+Health endpoint: http://localhost:3001/health
+Login endpoint: http://localhost:3001/api/v1/auth/login
+User profile endpoint: http://localhost:3001/api/v1/users/me

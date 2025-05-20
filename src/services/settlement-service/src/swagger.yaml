@@ -1,0 +1,44 @@
+openapi: 3.0.0
+info:
+  title: Settlement Service API
+  version: 1.0.0
+  description: API for managing debt settlements and optimizations
+
+servers:
+  - url: /api/v1
+    description: Settlement Service API v1
+
+paths:
+  /settlements:
+    get:
+      summary: Get all settlements
+      responses:
+        '200':
+          description: List of settlements
+    post:
+      summary: Create a new settlement
+      responses:
+        '201':
+          description: Settlement created
+
+  /settlements/{id}:
+    get:
+      summary: Get settlement by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Settlement details
+        '404':
+          description: Settlement not found
+
+  /health:
+    get:
+      summary: Health check endpoint
+      responses:
+        '200':
+          description: Service health status 
