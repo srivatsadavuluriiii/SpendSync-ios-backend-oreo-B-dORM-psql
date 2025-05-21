@@ -7,6 +7,14 @@
 const jwt = require('jsonwebtoken');
 const config = require('../config');
 const { UnauthorizedError, ForbiddenError } = require('../../shared/errors');
+const AuthService = require('../../shared/services/auth.service');
+
+// Create auth service instance
+const authService = new AuthService({
+  jwtSecret: config.security.jwt.secret,
+  accessTokenExpiry: 24 * 60 * 60, // 24 hours
+  refreshTokenExpiry: 7 * 24 * 60 * 60 // 7 days
+});
 
 // Token types
 const TOKEN_TYPES = {
@@ -112,11 +120,6 @@ function authenticate(options = {}) {
       // Verify token
       const decoded = verifyToken(token);
       
-      // Check token type
-      if (decoded.type !== TOKEN_TYPES.ACCESS) {
-        throw new UnauthorizedError('Invalid token type');
-      }
-
       // Check roles if required
       if (roles && !hasRequiredRoles(decoded.roles, roles)) {
         throw new ForbiddenError('Insufficient permissions');
@@ -124,7 +127,7 @@ function authenticate(options = {}) {
 
       // Attach user to request
       req.user = {
-        id: decoded.id,
+        id: decoded.id || decoded.userId, // Supporting both formats
         email: decoded.email,
         roles: decoded.roles || []
       };
@@ -186,5 +189,6 @@ module.exports = {
   refreshToken,
   generateAccessToken,
   generateRefreshToken,
-  TOKEN_TYPES
+  TOKEN_TYPES,
+  authService // Export auth service instance
 }; 

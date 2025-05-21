@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/44</span>
+                <span class='fraction'>0/35</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/44</span>
+                <span class='fraction'>0/35</span>
             </div>
         
             
@@ -261,19 +261,15 @@
 <a name='L196'></a><a href='#L196'>196</a>
 <a name='L197'></a><a href='#L197'>197</a>
 <a name='L198'></a><a href='#L198'>198</a>
-<a name='L199'></a><a href='#L199'>199</a>
-<a name='L200'></a><a href='#L200'>200</a>
-<a name='L201'></a><a href='#L201'>201</a>
-<a name='L202'></a><a href='#L202'>202</a>
-<a name='L203'></a><a href='#L203'>203</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L199'></a><a href='#L199'>199</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -320,7 +316,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -328,6 +323,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -444,7 +442,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -459,23 +456,18 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * Job Queue Service
  * 
  * Provides Bull job queue functionality for handling asynchronous tasks
  */
 &nbsp;
-<span class="cstat-no" title="statement not covered" >import Bull, { Queue, Job, JobOptions } from 'bull';</span>
-<span class="cstat-no" title="statement not covered" >import { register } from '../config/monitoring';</span>
-<span class="cstat-no" title="statement not covered" >import { Counter, Histogram } from 'prom-client';</span>
+import Bull, { Queue, Job, JobOptions } from 'bull';
+import { register, metrics } from '../config/monitoring.js';
+import { Counter, Histogram } from 'prom-client';
 &nbsp;
 // Redis connection options
 const redisOptions = <span class="cstat-no" title="statement not covered" >{</span>
@@ -519,17 +511,19 @@ const setupMetrics = <span class="cstat-no" title="statement not covered" ><span
   const jobProcessingCounter = <span class="cstat-no" title="statement not covered" >new Counter({</span>
     name: 'job_processing_total',
     help: 'Count of jobs being processed',
-    labelNames: ['queue', 'status'],
-    registers: [register]
+    labelNames: ['queue', 'status']
   });
 &nbsp;
   const jobDurationHistogram = <span class="cstat-no" title="statement not covered" >new Histogram({</span>
     name: 'job_processing_duration_seconds',
     help: 'Duration of job processing',
     labelNames: ['queue', 'status'],
-    buckets: [0.1, 0.5, 1, 2, 5, 10, 30, 60],
-    registers: [register]
+    buckets: [0.1, 0.5, 1, 2, 5, 10, 30, 60]
   });
+&nbsp;
+  // Register metrics
+<span class="cstat-no" title="statement not covered" >  register.registerMetric(jobProcessingCounter);</span>
+<span class="cstat-no" title="statement not covered" >  register.registerMetric(jobDurationHistogram);</span>
 &nbsp;
   // Add event listeners to each queue for metrics
 <span class="cstat-no" title="statement not covered" >  [emailQueue, reminderQueue, settlementQueue].forEach(<span class="fstat-no" title="function not covered" >queue </span>=&gt; {</span>
@@ -563,7 +557,7 @@ const setupMetrics = <span class="cstat-no" title="statement not covered" ><span
 // Initialize metrics
 <span class="cstat-no" title="statement not covered" >setupMetrics();</span>
 &nbsp;
-interface EmailNotificationJobData {
+export interface EmailNotificationJobData {
   userId: string;
   email: string;
   subject: string;
@@ -571,14 +565,14 @@ interface EmailNotificationJobData {
   templateData: Record&lt;string, any&gt;;
 }
 &nbsp;
-interface SettlementReminderJobData {
+export interface SettlementReminderJobData {
   settlementId: string;
   userId: string;
   dueDate: Date;
   reminderType: 'initial' | 'followup' | 'final';
 }
 &nbsp;
-interface SettlementProcessingJobData {
+export interface SettlementProcessingJobData {
   settlementId: string;
   processType: string;
   payload: Record&lt;string, any&gt;;
@@ -586,11 +580,11 @@ interface SettlementProcessingJobData {
 &nbsp;
 /**
  * Add a job to send a settlement notification email
- * @param data - Email notification data
- * @param options - Job options to override defaults
- * @returns The created job
  */
-async function <span class="fstat-no" title="function not covered" >addEmailNotificationJob(</span>data: EmailNotificationJobData, options: JobOptions = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span>: Promise&lt;Job&gt; {
+export async function <span class="fstat-no" title="function not covered" >addEmailNotificationJob(</span>
+  data: EmailNotificationJobData,
+  options: JobOptions = <span class="branch-0 cbranch-no" title="branch not covered" >{}</span>
+): Promise&lt;Job&gt; {
 <span class="cstat-no" title="statement not covered" >  return emailQueue.add(data, {</span>
     ...defaultJobOptions,
     ...options
@@ -599,11 +593,11 @@ async function <span class="fstat-no" title="function not covered" >addEmailNoti
 &nbsp;
 /**
  * Add a job to send settlement reminder
- * @param data - Reminder data
- * @param options - Job options to override defaults
- * @returns The created job
  */
-async function <span class="fstat-no" title="function not covered" >addSettlementReminderJob(</span>data: SettlementReminderJobData, options: JobOptions = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span>: Promise&lt;Job&gt; {
+export async function <span class="fstat-no" title="function not covered" >addSettlementReminderJob(</span>
+  data: SettlementReminderJobData,
+  options: JobOptions = <span class="branch-0 cbranch-no" title="branch not covered" >{}</span>
+): Promise&lt;Job&gt; {
 <span class="cstat-no" title="statement not covered" >  return reminderQueue.add(data, {</span>
     ...defaultJobOptions,
     ...options,
@@ -613,11 +607,11 @@ async function <span class="fstat-no" title="function not covered" >addSettlemen
 &nbsp;
 /**
  * Add a job to process a settlement (e.g., automated settlement tasks)
- * @param data - Settlement processing data
- * @param options - Job options to override defaults
- * @returns The created job
  */
-async function <span class="fstat-no" title="function not covered" >addSettlementProcessingJob(</span>data: SettlementProcessingJobData, options: JobOptions = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span>: Promise&lt;Job&gt; {
+export async function <span class="fstat-no" title="function not covered" >addSettlementProcessingJob(</span>
+  data: SettlementProcessingJobData,
+  options: JobOptions = <span class="branch-0 cbranch-no" title="branch not covered" >{}</span>
+): Promise&lt;Job&gt; {
 <span class="cstat-no" title="statement not covered" >  return settlementQueue.add(data, {</span>
     ...defaultJobOptions,
     ...options
@@ -626,11 +620,11 @@ async function <span class="fstat-no" title="function not covered" >addSettlemen
 &nbsp;
 /**
  * Schedule a settlement reminder for a specific date
- * @param data - Reminder data
- * @param scheduledFor - Date to schedule the reminder for
- * @returns The created job
  */
-async function <span class="fstat-no" title="function not covered" >scheduleSettlementReminder(</span>data: SettlementReminderJobData, scheduledFor: Date): Promise&lt;Job&gt; {
+export async function <span class="fstat-no" title="function not covered" >scheduleSettlementReminder(</span>
+  data: SettlementReminderJobData,
+  scheduledFor: Date
+): Promise&lt;Job&gt; {
   const now = <span class="cstat-no" title="statement not covered" >new Date();</span>
   const targetDate = <span class="cstat-no" title="statement not covered" >new Date(scheduledFor);</span>
   const delayMs = <span class="cstat-no" title="statement not covered" >Math.max(0, targetDate.getTime() - now.getTime());</span>
@@ -640,9 +634,8 @@ async function <span class="fstat-no" title="function not covered" >scheduleSett
 &nbsp;
 /**
  * Get queue health information for monitoring
- * @returns Queue health information
  */
-async function <span class="fstat-no" title="function not covered" >getQueuesHealth(</span>): Promise&lt;Record&lt;string, any&gt;&gt; {
+export async function <span class="fstat-no" title="function not covered" >getQueuesHealth(</span>): Promise&lt;Record&lt;string, any&gt;&gt; {
   const [
     emailCounts,
     reminderCounts,
@@ -661,14 +654,9 @@ async function <span class="fstat-no" title="function not covered" >getQueuesHea
 }
 &nbsp;
 export {
-<span class="cstat-no" title="statement not covered" >  emailQueue,</span>
-<span class="cstat-no" title="statement not covered" >  reminderQueue,</span>
-<span class="cstat-no" title="statement not covered" >  settlementQueue,</span>
-<span class="cstat-no" title="statement not covered" >  addEmailNotificationJob,</span>
-<span class="cstat-no" title="statement not covered" >  addSettlementReminderJob,</span>
-<span class="cstat-no" title="statement not covered" >  addSettlementProcessingJob,</span>
-<span class="cstat-no" title="statement not covered" >  scheduleSettlementReminder,</span>
-<span class="cstat-no" title="statement not covered" >  getQueuesHealth</span>
+  emailQueue,
+  reminderQueue,
+  settlementQueue
 }; </pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -676,7 +664,7 @@ export {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-16T18:24:52.475Z
+                at 2025-05-20T17:03:42.089Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

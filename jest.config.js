@@ -5,7 +5,7 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  setupFilesAfterEnv: ['jest-extended/all'],
+  setupFilesAfterEnv: ['jest-extended/all', '<rootDir>/jest.setup.js'],
   testMatch: [
     '**/__tests__/**/*.test.(ts|js)',
     '**/?(*.)+(spec|test).(ts|js)',
@@ -28,6 +28,9 @@ module.exports = {
           regenerator: true,
           helpers: true,
           corejs: false
+        }],
+        ['@babel/plugin-proposal-decorators', { 
+          legacy: true 
         }],
         '@babel/plugin-proposal-class-properties',
         '@babel/plugin-proposal-private-methods',

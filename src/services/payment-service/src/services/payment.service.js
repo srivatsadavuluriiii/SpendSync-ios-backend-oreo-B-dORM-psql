@@ -1,6 +1,7 @@
 import Payment from '../models/payment.model.js';
 import StripeService from '../integrations/stripe.service.js';
 import { NotFoundError, ValidationError } from '../utils/errors.js';
+import { getUserById } from '../services/user.service.js';
 
 export const getAllPayments = async (userId) => {
   return Payment.find({ senderId: userId }).sort({ createdAt: -1 });

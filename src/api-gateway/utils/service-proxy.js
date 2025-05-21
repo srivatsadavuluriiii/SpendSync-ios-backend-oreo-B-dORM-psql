@@ -179,7 +179,7 @@ async function forwardRequest(req, res, serviceName, path = null) {
       });
     }
     
-    // Strip /api/v1 prefix from the path
+    // Use provided path or strip /api/v1 prefix from the original path
     const requestPath = path || req.path.replace(/^\/api\/v1/, '');
     
     // Get service URL from registry
@@ -187,6 +187,14 @@ async function forwardRequest(req, res, serviceName, path = null) {
     
     // Construct full URL
     const url = `${serviceUrl}${requestPath}`;
+    
+    // Log the forwarded request
+    logger.debug(`Forwarding ${req.method} request to ${url}`, {
+      serviceName,
+      method: req.method,
+      url,
+      requestId
+    });
     
     // Forward headers but remove host
     const headers = { ...req.headers };
@@ -248,24 +256,25 @@ async function forwardRequest(req, res, serviceName, path = null) {
       // For network or timeout errors
       return res.status(503).json({
         error: {
-          message: `${serviceName} is currently unavailable`,
+          message: `Service ${serviceName} is unavailable: ${error.message}`,
           status: 503,
+          code: 'SERVICE_UNAVAILABLE',
           requestId
         }
       });
     }
   } catch (error) {
-    logger.error(`Service forwarding failed for ${serviceName}:`, {
-      requestId,
+    logger.error(`Error in forwardRequest for ${serviceName}:`, {
       error: error.message,
-      path: req.path
+      stack: error.stack,
+      requestId
     });
     
-    // Generic error response
     res.status(500).json({
       error: {
-        message: 'Internal server error',
+        message: 'Internal server error in API Gateway',
         status: 500,
+        code: 'GATEWAY_ERROR',
         requestId
       }
     });

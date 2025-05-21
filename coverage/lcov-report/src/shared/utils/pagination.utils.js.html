@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/20</span>
+                <span class='fraction'>0/11</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/20</span>
+                <span class='fraction'>0/11</span>
             </div>
         
             
@@ -175,30 +175,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -206,11 +182,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -228,10 +205,33 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -265,15 +265,15 @@
  * @param {Object} options - Default options
  * @returns {Object} Parsed pagination parameters
  */
-const getPaginationParams = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(q</span>uery, options = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span> =&gt; {</span>
+const getPaginationParams = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(q</span>uery, options = {}) =&gt; {</span>
   const {
-    defaultLimit = <span class="branch-0 cbranch-no" title="branch not covered" >20,</span>
-    maxLimit = <span class="branch-0 cbranch-no" title="branch not covered" >100,</span>
-    defaultPage = <span class="branch-0 cbranch-no" title="branch not covered" >1</span>
-  } = <span class="cstat-no" title="statement not covered" >options;</span>
+    defaultLimit = 20,
+    maxLimit = 100,
+    defaultPage = 1
+  } = options;
 &nbsp;
-  let limit = <span class="cstat-no" title="statement not covered" >parseInt(query.limit) || defaultLimit;</span>
-  let page = <span class="cstat-no" title="statement not covered" >parseInt(query.page) || defaultPage;</span>
+  let limit = parseInt(query.limit) || defaultLimit;
+  let page = parseInt(query.page) || defaultPage;
   
   // Ensure page is at least 1
 <span class="cstat-no" title="statement not covered" >  page = Math.max(1, page);</span>
@@ -282,7 +282,7 @@ const getPaginationParams = <span class="cstat-no" title="statement not covered"
 <span class="cstat-no" title="statement not covered" >  limit = Math.min(Math.max(1, limit), maxLimit);</span>
   
   // Calculate offset
-  const offset = <span class="cstat-no" title="statement not covered" >(page - 1) * limit;</span>
+  const offset = (page - 1) * limit;
   
 <span class="cstat-no" title="statement not covered" >  return {</span>
     limit,
@@ -301,11 +301,11 @@ const getPaginationParams = <span class="cstat-no" title="statement not covered"
  * @returns {Object} Pagination metadata
  */
 const getPaginationMetadata = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(p</span>arams, totalItems) =&gt; {</span>
-  const { page, limit } = <span class="cstat-no" title="statement not covered" >params;</span>
+  const { page, limit } = params;
   
-  const totalPages = <span class="cstat-no" title="statement not covered" >Math.ceil(totalItems / limit);</span>
-  const hasNextPage = <span class="cstat-no" title="statement not covered" >page &lt; totalPages;</span>
-  const hasPrevPage = <span class="cstat-no" title="statement not covered" >page &gt; 1;</span>
+  const totalPages = Math.ceil(totalItems / limit);
+  const hasNextPage = page &lt; totalPages;
+  const hasPrevPage = page &gt; 1;
   
 <span class="cstat-no" title="statement not covered" >  return {</span>
     currentPage: page,
@@ -326,7 +326,7 @@ const getPaginationMetadata = <span class="cstat-no" title="statement not covere
  * @returns {Object} Modified query
  */
 const paginateQuery = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(q</span>uery, params) =&gt; {</span>
-  const { limit, offset } = <span class="cstat-no" title="statement not covered" >params;</span>
+  const { limit, offset } = params;
 <span class="cstat-no" title="statement not covered" >  return query.limit(limit).skip(offset);</span>
 };
 &nbsp;
@@ -355,7 +355,7 @@ const formatPaginatedResponse = <span class="cstat-no" title="statement not cove
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-16T18:24:52.475Z
+                at 2025-05-20T17:03:42.089Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

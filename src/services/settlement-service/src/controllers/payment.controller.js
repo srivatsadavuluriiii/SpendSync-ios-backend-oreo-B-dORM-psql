@@ -4,10 +4,11 @@
  * Handles HTTP requests related to payment processing
  */
 
-const { BadRequestError, NotFoundError } = require('../../../../shared/errors');
-const settlementService = require('../services/settlement.service');
+const { BadRequestError, NotFoundError } = require('../../errors');
+const { settlementService } = require('../services/settlement.service');
 const paymentService = require('../services/payment.service');
 const { metrics, timers } = require('../config/monitoring');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 /**
  * Create a payment intent for a settlement

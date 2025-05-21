@@ -44,8 +44,12 @@ const createAuditMiddleware = (auditLogger) => {
         }
       };
 
+      // Use a Promise approach instead of await
       try {
-        await auditLogger.log(auditEvent);
+        auditLogger.log(auditEvent)
+          .catch(error => {
+            logger.error('Failed to log audit event:', error);
+          });
       } catch (error) {
         logger.error('Failed to log audit event:', error);
       }

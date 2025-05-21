@@ -226,8 +226,9 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
+let server; // Declare server at module level
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => {
+  server = app.listen(PORT, () => {
     logger.info(`Analytics Service running on port ${PORT}`);
     logger.info(`Health check available at http://localhost:${PORT}/health`);
     logger.info(`Metrics available at http://localhost:${PORT}/metrics`);

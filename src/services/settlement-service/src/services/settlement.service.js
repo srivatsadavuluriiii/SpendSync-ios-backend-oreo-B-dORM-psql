@@ -340,6 +340,9 @@ async function scheduleSettlementJobs(settlementId, event, eventData = {}) {
       return;
     }
     
+    // Variables for status and payment updates
+    let previousStatus, newStatus, paymentStatus;
+    
     // Handle different event types
     switch (event) {
       case 'created':
@@ -362,7 +365,8 @@ async function scheduleSettlementJobs(settlementId, event, eventData = {}) {
         break;
         
       case 'status_updated':
-        const { previousStatus, newStatus } = eventData;
+        previousStatus = eventData.previousStatus;
+        newStatus = eventData.newStatus;
         
         // Notify about status change
         await addSettlementProcessingJob({
@@ -383,7 +387,7 @@ async function scheduleSettlementJobs(settlementId, event, eventData = {}) {
         break;
         
       case 'payment_updated':
-        const { paymentStatus } = eventData;
+        paymentStatus = eventData.paymentStatus;
         
         // Schedule payment status check if not final status
         if (paymentStatus === 'processing' || paymentStatus === 'pending') {

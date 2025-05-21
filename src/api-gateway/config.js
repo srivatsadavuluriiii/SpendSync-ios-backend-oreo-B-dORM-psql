@@ -38,8 +38,8 @@ const serviceUrls = {
     expenseService: process.env.EXPENSE_SERVICE_URL || 'http://localhost:4002',
     settlementService: process.env.SETTLEMENT_SERVICE_URL || 'http://localhost:4003',
     notificationService: process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:4004',
-    analyticsService: process.env.ANALYTICS_SERVICE_URL || 'http://localhost:4005',
-    paymentService: process.env.PAYMENT_SERVICE_URL || 'http://localhost:4006'
+    paymentService: process.env.PAYMENT_SERVICE_URL || 'http://localhost:4005',
+    analyticsService: process.env.ANALYTICS_SERVICE_URL || 'http://localhost:4006'
   },
   test: {
     userService: process.env.USER_SERVICE_URL || 'http://localhost:4001',

@@ -148,11 +148,11 @@ export const batchCacheOperations = async (operations) => {
   const pipeline = new Map();
   
   operations.forEach(({ key, value, ttl }) => {
-    pipeline.set(key, value);
+    pipeline.set(key, { value, ttl });
   });
 
   try {
-    await Promise.all(Array.from(pipeline.entries()).map(([key, value]) => cache.setex(key, ttl, value)));
+    await Promise.all(Array.from(pipeline.entries()).map(([key, { value, ttl }]) => cache.setex(key, ttl, value)));
     console.debug(`Batch cache operation completed for ${operations.length} items`);
   } catch (error) {
     console.error('Batch cache operation failed:', error);

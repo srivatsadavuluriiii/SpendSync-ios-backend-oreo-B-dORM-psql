@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/30</span>
+                <span class='fraction'>0/26</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/28</span>
+                <span class='fraction'>0/26</span>
             </div>
         
             
@@ -165,18 +165,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -184,6 +172,18 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -193,11 +193,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -217,6 +212,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -246,7 +246,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -259,14 +259,14 @@
 &nbsp;
 import { Response, NextFunction, RequestHandler } from 'express';
 // @ts-ignore
-<span class="cstat-no" title="statement not covered" >import { BadRequestError } from '../../../../shared/errors';</span>
-import { ApiRequest, VersionHandlers } from '../types';
+import { BadRequestError } from '../../../../shared/errors';
+import { ApiRequest, VersionHandlers } from '../types/index.js';
 &nbsp;
 /**
  * Supported API versions
  */
-export const <span class="cstat-no" title="statement not covered" >SUPPORTED_VERSIONS: string[] = ['v1'];</span>
-export const <span class="cstat-no" title="statement not covered" >DEFAULT_VERSION: string = 'v1';</span>
+export const SUPPORTED_VERSIONS: string[] = <span class="cstat-no" title="statement not covered" >['v1'];</span>
+export const DEFAULT_VERSION: string = <span class="cstat-no" title="statement not covered" >'v1';</span>
 &nbsp;
 /**
  * Middleware to extract API version from the request
@@ -277,7 +277,7 @@ export const <span class="cstat-no" title="statement not covered" >DEFAULT_VERSI
  * 3. Via URL path (already parsed before this middleware runs)
  * 4. Defaults to the latest stable version if not specified
  */
-export const <span class="cstat-no" title="statement not covered" >extractVersion = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(</span>r</span>eq: ApiRequest, res: Response, next: NextFunction): void =&gt; {</span>
+export const extractVersion = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(r</span>eq: ApiRequest, res: Response, next: NextFunction): void =&gt; {</span>
   let version: string | undefined;
 &nbsp;
   // Check Accept header for version
@@ -324,7 +324,7 @@ export const <span class="cstat-no" title="statement not covered" >extractVersio
  * @param handlers - Object mapping versions to handler functions
  * @returns Middleware function to route to the correct version handler
  */
-export const <span class="cstat-no" title="statement not covered" >versionRoute = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(</span>h</span>andlers: VersionHandlers): RequestHandler =&gt; {</span>
+export const versionRoute = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(h</span>andlers: VersionHandlers): RequestHandler =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >  return <span class="fstat-no" title="function not covered" >(r</span>eq: ApiRequest, res: Response, next: NextFunction): void =&gt; {</span>
     const version = <span class="cstat-no" title="statement not covered" >req.apiVersion || DEFAULT_VERSION;</span>
     
@@ -340,7 +340,7 @@ export const <span class="cstat-no" title="statement not covered" >versionRoute 
   };
 };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >export default {</span>
+export default {
   extractVersion,
   versionRoute,
   SUPPORTED_VERSIONS,
@@ -352,7 +352,7 @@ export const <span class="cstat-no" title="statement not covered" >versionRoute 
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-16T18:24:52.475Z
+                at 2025-05-20T17:03:42.089Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>
