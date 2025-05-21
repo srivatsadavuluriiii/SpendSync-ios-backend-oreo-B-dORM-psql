@@ -2923,3 +2923,4 @@
 {"data":{"cores":8,"usage":60.198974609375},"level":"warn","message":"Alert triggered CPU usage high","service":"api","timestamp":"2025-05-21T16:16:13.689Z"}
 {"data":{"free":88244224,"total":8589934592,"usage":0.9897270202636719,"used":8501690368},"level":"warn","message":"Alert triggered Memory usage critical","service":"api","timestamp":"2025-05-21T16:17:13.687Z"}
 {"data":{"free":66519040,"total":8589934592,"usage":0.9922561645507812,"used":8523415552},"level":"warn","message":"Alert triggered Memory usage critical","service":"api","timestamp":"2025-05-21T16:18:13.687Z"}
+{"data":{"free":146538496,"total":8589934592,"usage":0.982940673828125,"used":8443396096},"level":"warn","message":"Alert triggered Memory usage critical","service":"api","timestamp":"2025-05-21T16:19:13.689Z"}
