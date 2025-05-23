@@ -172,11 +172,49 @@ app.get('/users-ui', (req, res) => {
         <style>
           body { font-family: Arial, sans-serif; line-height: 1.6; margin: 40px; }
           h1 { color: #333; }
+          .back { margin-bottom: 20px; }
+          .card { border: 1px solid #ddd; border-radius: 8px; padding: 20px; background: #f9f9f9; margin-bottom: 20px; }
+          .card h3 { margin-top: 0; color: #555; }
+          a { color: #0066cc; text-decoration: none; }
+          a:hover { text-decoration: underline; }
+          .status { padding: 4px 8px; border-radius: 4px; font-weight: bold; background: #d4edda; color: #155724; }
         </style>
+        <script>
+          window.onload = function() {
+            // Try to fetch users from the user service
+            fetch('/api/v1/users')
+              .then(response => response.json())
+              .then(data => {
+                document.getElementById('service-status').innerHTML = '<span class="status">Service Connected</span>';
+                document.getElementById('user-count').textContent = data.users ? data.users.length : 'N/A';
+              })
+              .catch(error => {
+                document.getElementById('service-status').innerHTML = '<span style="background: #f8d7da; color: #721c24; padding: 4px 8px; border-radius: 4px; font-weight: bold;">Service Disconnected</span>';
+                document.getElementById('user-count').textContent = 'N/A';
+              });
+          };
+        </script>
       </head>
       <body>
+        <div class="back"><a href="/">← Back to Home</a></div>
         <h1>Users Dashboard</h1>
-        <p>This is the Users Service dashboard.</p>
+        <p>Manages users and groups</p>
+        
+        <div class="card">
+          <h3>Service Status</h3>
+          <p id="service-status">Checking...</p>
+        </div>
+        
+        <div class="card">
+          <h3>Statistics</h3>
+          <p><strong>Total Users:</strong> <span id="user-count">Loading...</span></p>
+        </div>
+        
+        <div class="card">
+          <h3>Quick Actions</h3>
+          <p><a href="/api/v1/users">View All Users (API)</a></p>
+          <p><a href="/api-docs">API Documentation</a></p>
+        </div>
       </body>
     </html>
   `);
@@ -191,11 +229,49 @@ app.get('/expenses-ui', (req, res) => {
         <style>
           body { font-family: Arial, sans-serif; line-height: 1.6; margin: 40px; }
           h1 { color: #333; }
+          .back { margin-bottom: 20px; }
+          .card { border: 1px solid #ddd; border-radius: 8px; padding: 20px; background: #f9f9f9; margin-bottom: 20px; }
+          .card h3 { margin-top: 0; color: #555; }
+          a { color: #0066cc; text-decoration: none; }
+          a:hover { text-decoration: underline; }
+          .status { padding: 4px 8px; border-radius: 4px; font-weight: bold; background: #d4edda; color: #155724; }
         </style>
+        <script>
+          window.onload = function() {
+            // Try to fetch expenses from the expense service
+            fetch('/api/v1/expenses')
+              .then(response => response.json())
+              .then(data => {
+                document.getElementById('service-status').innerHTML = '<span class="status">Service Connected</span>';
+                document.getElementById('expense-count').textContent = data.expenses ? data.expenses.length : 'N/A';
+              })
+              .catch(error => {
+                document.getElementById('service-status').innerHTML = '<span style="background: #f8d7da; color: #721c24; padding: 4px 8px; border-radius: 4px; font-weight: bold;">Service Disconnected</span>';
+                document.getElementById('expense-count').textContent = 'N/A';
+              });
+          };
+        </script>
       </head>
       <body>
+        <div class="back"><a href="/">← Back to Home</a></div>
         <h1>Expenses Dashboard</h1>
-        <p>This is the Expenses Service dashboard.</p>
+        <p>Manages expenses</p>
+        
+        <div class="card">
+          <h3>Service Status</h3>
+          <p id="service-status">Checking...</p>
+        </div>
+        
+        <div class="card">
+          <h3>Statistics</h3>
+          <p><strong>Total Expenses:</strong> <span id="expense-count">Loading...</span></p>
+        </div>
+        
+        <div class="card">
+          <h3>Quick Actions</h3>
+          <p><a href="/api/v1/expenses">View All Expenses (API)</a></p>
+          <p><a href="/api-docs">API Documentation</a></p>
+        </div>
       </body>
     </html>
   `);
@@ -210,11 +286,49 @@ app.get('/settlements-ui', (req, res) => {
         <style>
           body { font-family: Arial, sans-serif; line-height: 1.6; margin: 40px; }
           h1 { color: #333; }
+          .back { margin-bottom: 20px; }
+          .card { border: 1px solid #ddd; border-radius: 8px; padding: 20px; background: #f9f9f9; margin-bottom: 20px; }
+          .card h3 { margin-top: 0; color: #555; }
+          a { color: #0066cc; text-decoration: none; }
+          a:hover { text-decoration: underline; }
+          .status { padding: 4px 8px; border-radius: 4px; font-weight: bold; background: #d4edda; color: #155724; }
         </style>
+        <script>
+          window.onload = function() {
+            // Try to fetch settlements from the settlement service
+            fetch('/api/v1/settlements')
+              .then(response => response.json())
+              .then(data => {
+                document.getElementById('service-status').innerHTML = '<span class="status">Service Connected</span>';
+                document.getElementById('settlement-count').textContent = data.settlements ? data.settlements.length : 'N/A';
+              })
+              .catch(error => {
+                document.getElementById('service-status').innerHTML = '<span style="background: #f8d7da; color: #721c24; padding: 4px 8px; border-radius: 4px; font-weight: bold;">Service Disconnected</span>';
+                document.getElementById('settlement-count').textContent = 'N/A';
+              });
+          };
+        </script>
       </head>
       <body>
+        <div class="back"><a href="/">← Back to Home</a></div>
         <h1>Settlements Dashboard</h1>
-        <p>This is the Settlements Service dashboard.</p>
+        <p>Manages settlements</p>
+        
+        <div class="card">
+          <h3>Service Status</h3>
+          <p id="service-status">Checking...</p>
+        </div>
+        
+        <div class="card">
+          <h3>Statistics</h3>
+          <p><strong>Total Settlements:</strong> <span id="settlement-count">Loading...</span></p>
+        </div>
+        
+        <div class="card">
+          <h3>Quick Actions</h3>
+          <p><a href="/api/v1/settlements">View All Settlements (API)</a></p>
+          <p><a href="/api-docs">API Documentation</a></p>
+        </div>
       </body>
     </html>
   `);
@@ -229,11 +343,144 @@ app.get('/notifications-ui', (req, res) => {
         <style>
           body { font-family: Arial, sans-serif; line-height: 1.6; margin: 40px; }
           h1 { color: #333; }
+          .back { margin-bottom: 20px; }
+          .card { border: 1px solid #ddd; border-radius: 8px; padding: 20px; background: #f9f9f9; margin-bottom: 20px; }
+          .card h3 { margin-top: 0; color: #555; }
+          a { color: #0066cc; text-decoration: none; }
+          a:hover { text-decoration: underline; }
+          .status { padding: 4px 8px; border-radius: 4px; font-weight: bold; background: #d4edda; color: #155724; }
         </style>
+        <script>
+          window.onload = function() {
+            // Try to fetch notifications from the notification service
+            fetch('/api/v1/notifications')
+              .then(response => response.json())
+              .then(data => {
+                document.getElementById('service-status').innerHTML = '<span class="status">Service Connected</span>';
+                document.getElementById('notification-count').textContent = data.notifications ? data.notifications.length : 'N/A';
+              })
+              .catch(error => {
+                document.getElementById('service-status').innerHTML = '<span style="background: #f8d7da; color: #721c24; padding: 4px 8px; border-radius: 4px; font-weight: bold;">Service Disconnected</span>';
+                document.getElementById('notification-count').textContent = 'N/A';
+              });
+          };
+        </script>
       </head>
       <body>
+        <div class="back"><a href="/">← Back to Home</a></div>
         <h1>Notifications Dashboard</h1>
-        <p>This is the Notifications Service dashboard.</p>
+        <p>Manages notifications</p>
+        
+        <div class="card">
+          <h3>Service Status</h3>
+          <p id="service-status">Checking...</p>
+        </div>
+        
+        <div class="card">
+          <h3>Statistics</h3>
+          <p><strong>Total Notifications:</strong> <span id="notification-count">Loading...</span></p>
+        </div>
+        
+        <div class="card">
+          <h3>Quick Actions</h3>
+          <p><a href="/api/v1/notifications">View All Notifications (API)</a></p>
+          <p><a href="/api-docs">API Documentation</a></p>
+        </div>
+      </body>
+    </html>
+  `);
+});
+
+// Admin Dashboard
+app.get('/api/v1/dashboard', (req, res) => {
+  res.send(`
+    <html>
+      <head>
+        <title>SpendSync - Admin Dashboard</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; margin: 40px; }
+          h1 { color: #333; }
+          .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
+          .card { border: 1px solid #ddd; border-radius: 8px; padding: 20px; background: #f9f9f9; }
+          .card h3 { margin-top: 0; color: #555; }
+          .status { padding: 4px 8px; border-radius: 4px; font-weight: bold; }
+          .status.up { background: #d4edda; color: #155724; }
+          .status.down { background: #f8d7da; color: #721c24; }
+          .back { margin-bottom: 20px; }
+          a { color: #0066cc; text-decoration: none; }
+          a:hover { text-decoration: underline; }
+        </style>
+        <script>
+          window.onload = function() {
+            // Load services status
+            fetch('/services/status')
+              .then(response => response.json())
+              .then(data => {
+                const servicesContainer = document.getElementById('services-status');
+                const services = data.services || {};
+                
+                Object.keys(services).forEach(serviceName => {
+                  const service = services[serviceName];
+                  const serviceDiv = document.createElement('div');
+                  serviceDiv.innerHTML = \`
+                    <strong>\${serviceName}:</strong> 
+                    <span class="status \${service.status === 'UP' ? 'up' : 'down'}">\${service.status}</span>
+                  \`;
+                  servicesContainer.appendChild(serviceDiv);
+                });
+              })
+              .catch(error => {
+                document.getElementById('services-status').innerHTML = '<p style="color: red;">Error loading services status</p>';
+              });
+              
+            // Load health check
+            fetch('/health')
+              .then(response => response.json())
+              .then(data => {
+                document.getElementById('health-status').innerHTML = \`
+                  <p><strong>Status:</strong> \${data.status}</p>
+                  <p><strong>Uptime:</strong> \${Math.floor(data.uptime)} seconds</p>
+                  <p><strong>Memory Usage:</strong> \${Math.round(data.memory.heapUsed / 1024 / 1024)}MB</p>
+                \`;
+              })
+              .catch(error => {
+                document.getElementById('health-status').innerHTML = '<p style="color: red;">Error loading health status</p>';
+              });
+          };
+        </script>
+      </head>
+      <body>
+        <div class="back"><a href="/">← Back to Home</a></div>
+        <h1>Admin Dashboard</h1>
+        <p>Monitor services, circuits, and cache</p>
+        
+        <div class="dashboard-grid">
+          <div class="card">
+            <h3>Services Status</h3>
+            <div id="services-status">Loading...</div>
+          </div>
+          
+          <div class="card">
+            <h3>API Gateway Health</h3>
+            <div id="health-status">Loading...</div>
+          </div>
+          
+          <div class="card">
+            <h3>Quick Links</h3>
+            <p><a href="/api-docs">API Documentation</a></p>
+            <p><a href="/health">Health Check</a></p>
+            <p><a href="/metrics">Metrics</a></p>
+            <p><a href="/services/status">Services Status</a></p>
+          </div>
+          
+          <div class="card">
+            <h3>Service Dashboards</h3>
+            <p><a href="/users-ui">Users Dashboard</a></p>
+            <p><a href="/expenses-ui">Expenses Dashboard</a></p>
+            <p><a href="/settlements-ui">Settlements Dashboard</a></p>
+            <p><a href="/notifications-ui">Notifications Dashboard</a></p>
+          </div>
+        </div>
       </body>
     </html>
   `);
