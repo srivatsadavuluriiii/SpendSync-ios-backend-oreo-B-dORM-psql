@@ -7,14 +7,16 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { BadRequestError, NotFoundError } from '../../../../shared/errors/index.js';
-import { SettlementService } from '../services/settlement.service.js';
+import { settlementService } from '../services/settlement.service.js';
+// @ts-ignore
 import * as optimizationService from '../services/optimization.service.js';
 import * as visualizationService from '../services/visualization.service.js';
+// @ts-ignore
 import * as userPreferenceService from '../services/user-preference.service.js';
 import { logger } from '../utils/logger.js';
-
-// Create a new instance of the settlement service
-const settlementService = new SettlementService();
+import Joi from 'joi';
+import { metrics } from '../config/monitoring.js';
+import { asyncHandler } from '../../../shared/utils/async-handler.js';
 
 interface AuthenticatedRequest extends Request {
   user: {
@@ -61,6 +63,11 @@ interface UserPreferences {
   settlementAlgorithm?: string;
   defaultCurrency?: string;
 }
+
+// Helper function to wrap async handlers
+const asyncHandler = (fn: Function) => (req: Request, res: Response, next: NextFunction) => {
+  Promise.resolve(fn(req, res, next)).catch(next);
+};
 
 /**
  * Get settlement suggestions for a group

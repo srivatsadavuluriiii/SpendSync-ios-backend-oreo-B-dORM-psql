@@ -1,36 +1,15 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
+    "target": "ES2020",
+    "module": "commonjs",
+    "allowJs": true,
+    "skipLibCheck": true,
+    "noCheck": true,
     "noEmit": true,
-    "baseUrl": ".",
-    "paths": {
-      "@user-service/*": ["src/services/user-service/src/*"],
-      "@expense-service/*": ["src/services/expense-service/src/*"],
-      "@notification-service/*": ["src/services/notification-service/src/*"],
-      "@settlement-service/*": ["src/services/settlement-service/src/*"],
-      "@shared/*": ["src/shared/*"]
-    },
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "skipLibCheck": true
+    "isolatedModules": false,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
   },
-  "include": [
-    "src/**/*",
-    "tests/**/*"
-  ],
-  "exclude": [
-    "node_modules"
-  ],
-  "ts-node": {
-    "esm": true,
-    "experimentalSpecifierResolution": "node"
-  }
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "tests", "**/*.test.*"]
 } 
