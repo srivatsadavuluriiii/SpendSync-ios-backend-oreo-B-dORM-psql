@@ -163,6 +163,82 @@ app.get('/', (req, res) => {
   `);
 });
 
+// UI dashboard for User Service
+app.get('/users-ui', (req, res) => {
+  res.send(`
+    <html>
+      <head>
+        <title>SpendSync - Users Dashboard</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; margin: 40px; }
+          h1 { color: #333; }
+        </style>
+      </head>
+      <body>
+        <h1>Users Dashboard</h1>
+        <p>This is the Users Service dashboard.</p>
+      </body>
+    </html>
+  `);
+});
+
+// UI dashboard for Expense Service
+app.get('/expenses-ui', (req, res) => {
+  res.send(`
+    <html>
+      <head>
+        <title>SpendSync - Expenses Dashboard</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; margin: 40px; }
+          h1 { color: #333; }
+        </style>
+      </head>
+      <body>
+        <h1>Expenses Dashboard</h1>
+        <p>This is the Expenses Service dashboard.</p>
+      </body>
+    </html>
+  `);
+});
+
+// UI dashboard for Settlement Service
+app.get('/settlements-ui', (req, res) => {
+  res.send(`
+    <html>
+      <head>
+        <title>SpendSync - Settlements Dashboard</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; margin: 40px; }
+          h1 { color: #333; }
+        </style>
+      </head>
+      <body>
+        <h1>Settlements Dashboard</h1>
+        <p>This is the Settlements Service dashboard.</p>
+      </body>
+    </html>
+  `);
+});
+
+// UI dashboard for Notification Service
+app.get('/notifications-ui', (req, res) => {
+  res.send(`
+    <html>
+      <head>
+        <title>SpendSync - Notifications Dashboard</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; margin: 40px; }
+          h1 { color: #333; }
+        </style>
+      </head>
+      <body>
+        <h1>Notifications Dashboard</h1>
+        <p>This is the Notifications Service dashboard.</p>
+      </body>
+    </html>
+  `);
+});
+
 // Apply authentication middleware to all routes except public ones
 app.use('/api/v1', authenticate({ required: false }));
 

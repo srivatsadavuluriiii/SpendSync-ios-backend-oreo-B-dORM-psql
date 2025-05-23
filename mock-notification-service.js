@@ -1,19 +1,18 @@
 const express = require('express');
 const app = express();
-const PORT = 3004; // Match the port expected by the gateway for Notification Service
+const PORT = 3004;
 
-// In-memory storage for notifications
+
 const notifications = {};
 
-// Enable JSON parsing
+
 app.use(express.json());
 
-// Health check endpoint - this is used by the circuit breaker
+
 app.get('/health', (req, res) => {
   res.json({ status: 'UP' });
 });
 
-// Get notifications for a user
 app.get('/api/v1/notifications', (req, res) => {
   const { userId } = req.query;
   
@@ -26,7 +25,7 @@ app.get('/api/v1/notifications', (req, res) => {
     });
   }
   
-  // Return notifications for the user, or empty array if none exist
+  
   const userNotifications = notifications[userId] || [];
   
   res.json({
