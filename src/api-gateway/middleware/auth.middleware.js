@@ -1,194 +1,259 @@
 /**
  * Authentication Middleware
  * 
- * Handles JWT validation, role-based access control, and refresh token mechanism
+ * Handles Supabase authentication, role-based access control, and session management
  */
 
-const jwt = require('jsonwebtoken');
-const config = require('../config');
-const { UnauthorizedError, ForbiddenError } = require('../../shared/errors');
-const AuthService = require('../../shared/services/auth.service');
+const { createClient } = require('../../lib/supabase/server');
+const { updateSession } = require('../../lib/supabase/middleware');
 
-// Create auth service instance
-const authService = new AuthService({
-  jwtSecret: config.security.jwt.secret,
-  accessTokenExpiry: 24 * 60 * 60, // 24 hours
-  refreshTokenExpiry: 7 * 24 * 60 * 60 // 7 days
-});
+/**
+ * Authentication middleware using Supabase Auth
+ * Checks for valid Supabase session and attaches user to request
+ */
+const authenticate = async (req, res, next) => {
+  try {
+    const supabase = createClient(req, res);
+    
+    const {
+      data: { user },
+      error
+    } = await supabase.auth.getUser();
 
-// Token types
-const TOKEN_TYPES = {
-  ACCESS: 'access',
-  REFRESH: 'refresh'
+    if (error || !user) {
+      return res.status(401).json({
+        success: false,
+        error: 'Authentication required',
+        message: 'No valid session found'
+      });
+    }
+
+    // Attach user and supabase client to request
+    req.user = user;
+    req.supabase = supabase;
+    
+    next();
+  } catch (error) {
+    console.error('Authentication middleware error:', error);
+    return res.status(401).json({
+      success: false,
+      error: 'Authentication failed',
+      message: error.message
+    });
+  }
 };
 
 /**
- * Verify JWT token
- * @param {string} token - JWT token
- * @param {string} type - Token type (access or refresh)
- * @returns {Object} Decoded token payload
+ * Optional authentication middleware
+ * Attaches user to request if authenticated, but doesn't require authentication
  */
-function verifyToken(token, type = TOKEN_TYPES.ACCESS) {
+const optionalAuth = async (req, res, next) => {
   try {
-    const secret = type === TOKEN_TYPES.ACCESS ? 
-      config.security.jwt.secret : 
-      `${config.security.jwt.secret}-refresh`;
+    const supabase = createClient(req, res);
+    
+    const {
+      data: { user },
+      error
+    } = await supabase.auth.getUser();
 
-    return jwt.verify(token, secret);
-  } catch (error) {
-    if (error.name === 'TokenExpiredError') {
-      throw new UnauthorizedError('Token has expired');
+    if (!error && user) {
+      req.user = user;
+      req.supabase = supabase;
     }
-    throw new UnauthorizedError('Invalid token');
+    
+    next();
+  } catch (error) {
+    // Don't fail if authentication fails in optional auth
+    console.warn('Optional auth middleware warning:', error.message);
+    next();
   }
-}
+};
 
 /**
- * Generate new access token
- * @param {Object} payload - Token payload
- * @returns {string} New access token
+ * Role-based authorization middleware
+ * Requires authentication and checks user role/metadata
  */
-function generateAccessToken(payload) {
-  return jwt.sign(
-    { ...payload, type: TOKEN_TYPES.ACCESS },
-    config.security.jwt.secret,
-    { expiresIn: config.security.jwt.expiresIn }
-  );
-}
-
-/**
- * Generate new refresh token
- * @param {Object} payload - Token payload
- * @returns {string} New refresh token
- */
-function generateRefreshToken(payload) {
-  return jwt.sign(
-    { ...payload, type: TOKEN_TYPES.REFRESH },
-    `${config.security.jwt.secret}-refresh`,
-    { expiresIn: config.security.jwt.refreshExpiresIn }
-  );
-}
-
-/**
- * Extract token from request
- * @param {Object} req - Express request object
- * @returns {string|null} Extracted token or null
- */
-function extractToken(req) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader) return null;
-
-  const [type, token] = authHeader.split(' ');
-  return type === 'Bearer' ? token : null;
-}
-
-/**
- * Check if user has required roles
- * @param {string[]} userRoles - User roles
- * @param {string|string[]} requiredRoles - Required roles
- * @returns {boolean} Whether user has required roles
- */
-function hasRequiredRoles(userRoles, requiredRoles) {
-  if (!requiredRoles) return true;
-  if (!userRoles) return false;
-
-  const roles = Array.isArray(requiredRoles) ? requiredRoles : [requiredRoles];
-  return roles.some(role => userRoles.includes(role));
-}
-
-/**
- * Authentication middleware
- * @param {Object} options - Middleware options
- * @param {boolean} [options.required=true] - Whether authentication is required
- * @param {string|string[]} [options.roles] - Required roles
- * @returns {Function} Express middleware
- */
-function authenticate(options = {}) {
-  const { required = true, roles } = options;
-
+const authorize = (roles = []) => {
   return async (req, res, next) => {
     try {
-      const token = extractToken(req);
+      // First ensure user is authenticated
+      if (!req.user) {
+        return res.status(401).json({
+          success: false,
+          error: 'Authentication required',
+          message: 'User must be logged in'
+        });
+      }
 
-      if (!token) {
-        if (required) {
-          throw new UnauthorizedError('Authentication required');
-        }
+      // If no roles specified, just check authentication
+      if (roles.length === 0) {
         return next();
       }
 
-      // Verify token
-      const decoded = verifyToken(token);
-      
-      // Check roles if required
-      if (roles && !hasRequiredRoles(decoded.roles, roles)) {
-        throw new ForbiddenError('Insufficient permissions');
-      }
+      // Check if user has required role in user metadata
+      const userRole = req.user.user_metadata?.role || req.user.app_metadata?.role || 'user';
+      const userRoles = Array.isArray(userRole) ? userRole : [userRole];
+      const hasRole = Array.isArray(roles) 
+        ? roles.some(role => userRoles.includes(role))
+        : userRoles.includes(roles);
 
-      // Attach user to request
-      req.user = {
-        id: decoded.id || decoded.userId, // Supporting both formats
-        email: decoded.email,
-        roles: decoded.roles || []
-      };
+      if (!hasRole) {
+        return res.status(403).json({
+          success: false,
+          error: 'Insufficient permissions',
+          message: `Required role: ${Array.isArray(roles) ? roles.join(' or ') : roles}`
+        });
+      }
 
       next();
     } catch (error) {
-      next(error);
+      console.error('Authorization middleware error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Authorization check failed',
+        message: error.message
+      });
     }
   };
-}
+};
 
 /**
- * Refresh token middleware
- * @returns {Function} Express middleware
+ * Admin authorization middleware
+ * Requires user to have admin role
  */
-function refreshToken() {
-  return async (req, res, next) => {
-    try {
-      const token = extractToken(req);
-      if (!token) {
-        throw new UnauthorizedError('Refresh token required');
-      }
+const requireAdmin = authorize(['admin']);
 
-      // Verify refresh token
-      const decoded = verifyToken(token, TOKEN_TYPES.REFRESH);
-      
-      // Check token type
-      if (decoded.type !== TOKEN_TYPES.REFRESH) {
-        throw new UnauthorizedError('Invalid token type');
-      }
+/**
+ * Service-to-service authentication middleware
+ * For internal microservice communication
+ */
+const authenticateService = async (req, res, next) => {
+  try {
+    const serviceKey = req.headers['x-service-key'];
+    const expectedKey = process.env.SERVICE_AUTH_KEY;
 
-      // Generate new tokens
-      const accessToken = generateAccessToken({
-        id: decoded.id,
-        email: decoded.email,
-        roles: decoded.roles
+    if (!serviceKey || !expectedKey) {
+      return res.status(401).json({
+        success: false,
+        error: 'Service authentication required',
+        message: 'Missing service authentication key'
       });
-
-      const refreshToken = generateRefreshToken({
-        id: decoded.id,
-        email: decoded.email,
-        roles: decoded.roles
-      });
-
-      // Send new tokens
-      res.json({
-        accessToken,
-        refreshToken,
-        expiresIn: config.security.jwt.expiresIn
-      });
-    } catch (error) {
-      next(error);
     }
+
+    if (serviceKey !== expectedKey) {
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid service key',
+        message: 'Service authentication failed'
+      });
+    }
+
+    // Mark request as coming from a service
+    req.isServiceRequest = true;
+    next();
+  } catch (error) {
+    console.error('Service authentication error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Service authentication failed',
+      message: error.message
+    });
+  }
+};
+
+/**
+ * Rate limiting for authentication endpoints
+ */
+const authRateLimit = (maxAttempts = 5, windowMs = 15 * 60 * 1000) => {
+  const attempts = new Map();
+
+  return (req, res, next) => {
+    const identifier = req.ip || req.connection.remoteAddress;
+    const now = Date.now();
+    
+    // Clean old attempts
+    const windowStart = now - windowMs;
+    for (const [key, value] of attempts.entries()) {
+      if (value.timestamp < windowStart) {
+        attempts.delete(key);
+      }
+    }
+
+    // Check current attempts
+    const userAttempts = attempts.get(identifier) || { count: 0, timestamp: now };
+    
+    if (userAttempts.count >= maxAttempts && userAttempts.timestamp > windowStart) {
+      return res.status(429).json({
+        success: false,
+        error: 'Too many authentication attempts',
+        message: `Please try again in ${Math.ceil(windowMs / 60000)} minutes`,
+        retryAfter: Math.ceil((userAttempts.timestamp + windowMs - now) / 1000)
+      });
+    }
+
+    // Record this attempt on error
+    const originalJson = res.json;
+    res.json = function(body) {
+      if (!body.success && (res.statusCode === 401 || res.statusCode === 403)) {
+        attempts.set(identifier, {
+          count: userAttempts.count + 1,
+          timestamp: now
+        });
+      }
+      return originalJson.call(this, body);
+    };
+
+    next();
   };
-}
+};
+
+/**
+ * Session validation middleware
+ * Ensures session is valid and user is active
+ */
+const validateSession = async (req, res, next) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid session',
+        message: 'Session validation failed'
+      });
+    }
+
+    // Check if user account is active (if you have user status field)
+    if (req.user.user_metadata?.status && req.user.user_metadata.status !== 'active') {
+      return res.status(403).json({
+        success: false,
+        error: 'Account inactive',
+        message: 'User account is not active'
+      });
+    }
+
+    next();
+  } catch (error) {
+    console.error('Session validation error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Session validation failed',
+      message: error.message
+    });
+  }
+};
+
+/**
+ * Supabase session middleware
+ * Updates session and attaches user to request
+ */
+const supabaseSession = updateSession;
 
 module.exports = {
   authenticate,
-  refreshToken,
-  generateAccessToken,
-  generateRefreshToken,
-  TOKEN_TYPES,
-  authService // Export auth service instance
+  optionalAuth,
+  authorize,
+  requireAdmin,
+  authenticateService,
+  authRateLimit,
+  validateSession,
+  supabaseSession
 }; 

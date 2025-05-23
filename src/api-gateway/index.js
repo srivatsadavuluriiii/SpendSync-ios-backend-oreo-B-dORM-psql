@@ -12,12 +12,13 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 const config = require('./config');
 const { logger, stream } = require('../shared/utils/logger');
-const { authenticate } = require('./middleware/auth.middleware');
+const { authenticate, optionalAuth, supabaseSession } = require('./middleware/auth.middleware');
 const { errorHandler, notFoundHandler } = require('../shared/middleware/error.middleware');
 const { metricsMiddleware, metricsHandler, healthCheckHandler, traceMiddleware } = require('../shared/middleware/monitoring.middleware');
 const { cacheMiddleware } = require('../shared/middleware/cache.middleware');
 const memoryOptimizationMiddleware = require('../shared/middleware/memory-optimization.middleware');
 const routes = require('./routes');
+const authRoutes = require('./routes/auth.routes');
 const serviceRegistry = require('../shared/services/service-registry');
 
 // Enable garbage collection if available
@@ -74,6 +75,12 @@ app.use(express.urlencoded({ extended: true, limit: '256kb' }));
 // Response caching with shorter TTL
 app.use(cacheMiddleware());
 
+// Supabase session middleware for all routes
+app.use(supabaseSession);
+
+// Authentication routes
+app.use('/api/v1/auth', authRoutes);
+
 // API Documentation - load on demand to save memory
 app.use('/api-docs', (req, res, next) => {
   // Only initialize swagger when needed
@@ -113,6 +120,12 @@ app.get('/', (req, res) => {
       <body>
         <h1>SpendSync API Gateway</h1>
         <p>Welcome to the SpendSync API Gateway. The following services are available:</p>
+        
+        <div class="service">
+          <h2>Authentication</h2>
+          <p>Supabase Auth with email/password, Google, and GitHub OAuth</p>
+          <a href="/api-docs">Authentication API Documentation</a>
+        </div>
         
         <div class="service">
           <h2>API Documentation</h2>
@@ -487,7 +500,7 @@ app.get('/api/v1/dashboard', (req, res) => {
 });
 
 // Apply authentication middleware to all routes except public ones
-app.use('/api/v1', authenticate({ required: false }));
+app.use('/api/v1', optionalAuth);
 
 // API routes
 app.use('/api/v1', routes);
@@ -507,4 +520,4 @@ if (process.env.NODE_ENV !== 'test') {
   });
 }
 
-module.exports = app; 
+module.exports = app;
