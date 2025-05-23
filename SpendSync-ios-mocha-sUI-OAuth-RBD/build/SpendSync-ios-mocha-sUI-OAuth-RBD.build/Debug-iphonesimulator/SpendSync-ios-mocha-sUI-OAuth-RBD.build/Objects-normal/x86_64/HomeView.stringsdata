@@ -1,0 +1,56 @@
+{
+  "source": "/Users/carson/Downloads/SpendSync-ios-backend-oreo-B-dORM-psql-main/SpendSync-ios-mocha-sUI-OAuth-RBD/SpendSync-ios-mocha-sUI-OAuth-RBD/Views/HomeView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "SpendSync",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 135
+        }
+      },
+      {
+        "comment": "",
+        "key": "Current Balance",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 41
+        }
+      },
+      {
+        "comment": "",
+        "key": "Income",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 52
+        }
+      },
+      {
+        "comment": "",
+        "key": "Expenses",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 68
+        }
+      },
+      {
+        "comment": "",
+        "key": "Recent Transactions",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 103
+        }
+      },
+      {
+        "comment": "",
+        "key": "No transactions found",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 114
+        }
+      }
+    ]
+  },
+  "version": 1
+}

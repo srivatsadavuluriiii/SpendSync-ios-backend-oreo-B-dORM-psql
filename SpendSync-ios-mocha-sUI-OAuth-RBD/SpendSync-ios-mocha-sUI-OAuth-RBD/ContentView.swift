@@ -8,17 +8,40 @@
 import SwiftUI
 
 struct ContentView: View {
+    @EnvironmentObject private var authViewModel: AuthViewModel
+    @State private var selectedTab: Tab = .home
+    
+    enum Tab {
+        case home
+        case stats
+        case settings
+    }
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        TabView(selection: $selectedTab) {
+            HomeView()
+                .tabItem {
+                    Label("Home", systemImage: "house.fill")
+                }
+                .tag(Tab.home)
+            
+            StatsView()
+                .tabItem {
+                    Label("Statistics", systemImage: "chart.bar.fill")
+                }
+                .tag(Tab.stats)
+            
+            SettingsView()
+                .environmentObject(authViewModel)
+                .tabItem {
+                    Label("Settings", systemImage: "gear")
         }
-        .padding()
+                .tag(Tab.settings)
+        }
     }
 }
 
 #Preview {
     ContentView()
+        .environmentObject(AuthViewModel())
 }

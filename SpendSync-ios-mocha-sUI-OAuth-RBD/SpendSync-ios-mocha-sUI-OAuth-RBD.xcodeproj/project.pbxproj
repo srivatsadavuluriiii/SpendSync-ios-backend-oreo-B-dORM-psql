@@ -6,13 +6,31 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		B5772D8E2DDFCE66006CD246 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = B5772D8D2DDFCE66006CD246 /* GoogleSignIn */; };
+		B5772D902DDFCE66006CD246 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B5772D8F2DDFCE66006CD246 /* GoogleSignInSwift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		B57583F22DDE3821008B58FF /* SpendSync-ios-mocha-sUI-OAuth-RBD.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SpendSync-ios-mocha-sUI-OAuth-RBD.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		B5772D8B2DDFCD86006CD246 /* Exceptions for "SpendSync-ios-mocha-sUI-OAuth-RBD" folder in "SpendSync-ios-mocha-sUI-OAuth-RBD" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = B57583F12DDE3821008B58FF /* SpendSync-ios-mocha-sUI-OAuth-RBD */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		B57583F42DDE3821008B58FF /* SpendSync-ios-mocha-sUI-OAuth-RBD */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				B5772D8B2DDFCD86006CD246 /* Exceptions for "SpendSync-ios-mocha-sUI-OAuth-RBD" folder in "SpendSync-ios-mocha-sUI-OAuth-RBD" target */,
+			);
 			path = "SpendSync-ios-mocha-sUI-OAuth-RBD";
 			sourceTree = "<group>";
 		};
@@ -23,6 +41,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5772D8E2DDFCE66006CD246 /* GoogleSignIn in Frameworks */,
+				B5772D902DDFCE66006CD246 /* GoogleSignInSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +85,8 @@
 			);
 			name = "SpendSync-ios-mocha-sUI-OAuth-RBD";
 			packageProductDependencies = (
+				B5772D8D2DDFCE66006CD246 /* GoogleSignIn */,
+				B5772D8F2DDFCE66006CD246 /* GoogleSignInSwift */,
 			);
 			productName = "SpendSync-ios-mocha-sUI-OAuth-RBD";
 			productReference = B57583F22DDE3821008B58FF /* SpendSync-ios-mocha-sUI-OAuth-RBD.app */;
@@ -94,6 +116,9 @@
 			);
 			mainGroup = B57583E92DDE3820008B58FF;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				B5772D8C2DDFCE66006CD246 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B57583F32DDE3821008B58FF /* Products */;
 			projectDirPath = "";
@@ -256,6 +281,7 @@
 				DEVELOPMENT_TEAM = UC9DUX7Q6X;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "SpendSync-ios-mocha-sUI-OAuth-RBD/Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -284,6 +310,7 @@
 				DEVELOPMENT_TEAM = UC9DUX7Q6X;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "SpendSync-ios-mocha-sUI-OAuth-RBD/Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -324,6 +351,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B5772D8C2DDFCE66006CD246 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B5772D8D2DDFCE66006CD246 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B5772D8C2DDFCE66006CD246 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		B5772D8F2DDFCE66006CD246 /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B5772D8C2DDFCE66006CD246 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B57583EA2DDE3820008B58FF /* Project object */;
 }

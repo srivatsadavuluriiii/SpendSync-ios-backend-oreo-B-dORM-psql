@@ -5,7 +5,8 @@
   "main": "src/api-gateway/index.js",
   "scripts": {
     "setup": "chmod +x scripts/setup-dev.sh && ./scripts/setup-dev.sh",
-    "start": "node src/api-gateway/index.js",
+    "setup:render": "chmod +x scripts/setup-render.sh && ./scripts/setup-render.sh",
+    "start": "npm run setup:render && node --expose-gc src/api-gateway/index.js",
     "dev": "npm run setup && nodemon --inspect=0.0.0.0:9229 src/api-gateway/index.js",
     "dev:services": "docker-compose up --remove-orphans",
     "dev:build": "docker-compose build --no-cache",
@@ -59,6 +60,7 @@
     "express-mongo-sanitize": "^2.2.0",
     "express-prometheus-middleware": "^1.2.0",
     "express-rate-limit": "^7.1.0",
+    "google-auth-library": "^9.15.1",
     "helmet": "^7.0.0",
     "ioredis": "^5.6.1",
     "joi": "^17.11.0",

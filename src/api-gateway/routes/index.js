@@ -12,6 +12,15 @@ const { asyncHandler } = require('../../shared/middleware/async.middleware');
 
 const router = express.Router();
 
+// Health check endpoint for monitoring
+router.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    message: 'API Gateway is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Authentication routes (handled directly by the gateway)
 router.use('/auth', authRoutes);
 

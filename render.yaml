@@ -1,0 +1,167 @@
+services:
+  - type: web
+    name: spendsync-api-gateway
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PORT
+        value: 4000
+      - key: USER_SERVICE_URL
+        fromService:
+          type: web
+          name: spendsync-user-service
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: EXPENSE_SERVICE_URL
+        fromService:
+          type: web
+          name: spendsync-expense-service
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: SETTLEMENT_SERVICE_URL
+        fromService:
+          type: web
+          name: spendsync-settlement-service
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: NOTIFICATION_SERVICE_URL
+        fromService:
+          type: web
+          name: spendsync-notification-service
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: ANALYTICS_SERVICE_URL
+        fromService:
+          type: web
+          name: spendsync-analytics-service
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: PAYMENT_SERVICE_URL
+        fromService:
+          type: web
+          name: spendsync-payment-service
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: MONGODB_URI
+        sync: false
+    autoDeploy: true
+
+  - type: web
+    name: spendsync-user-service
+    env: node
+    buildCommand: npm install
+    startCommand: node src/services/user-service/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: spendsync-api-gateway
+          envVarKey: JWT_SECRET
+      - key: MONGODB_URI
+        sync: false
+    autoDeploy: true
+
+  - type: web
+    name: spendsync-expense-service
+    env: node
+    buildCommand: npm install
+    startCommand: node src/services/expense-service/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3002
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: spendsync-api-gateway
+          envVarKey: JWT_SECRET
+      - key: MONGODB_URI
+        sync: false
+    autoDeploy: true
+
+  - type: web
+    name: spendsync-settlement-service
+    env: node
+    buildCommand: npm install
+    startCommand: node src/services/settlement-service/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3003
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: spendsync-api-gateway
+          envVarKey: JWT_SECRET
+      - key: MONGODB_URI
+        sync: false
+    autoDeploy: true
+
+  - type: web
+    name: spendsync-notification-service
+    env: node
+    buildCommand: npm install
+    startCommand: node src/services/notification-service/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3004
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: spendsync-api-gateway
+          envVarKey: JWT_SECRET
+      - key: MONGODB_URI
+        sync: false
+    autoDeploy: true
+
+  - type: web
+    name: spendsync-analytics-service
+    env: node
+    buildCommand: npm install
+    startCommand: node src/services/analytics-service/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3005
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: spendsync-api-gateway
+          envVarKey: JWT_SECRET
+      - key: MONGODB_URI
+        sync: false
+    autoDeploy: true
+
+  - type: web
+    name: spendsync-payment-service
+    env: node
+    buildCommand: npm install
+    startCommand: node src/services/payment-service/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3006
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: spendsync-api-gateway
+          envVarKey: JWT_SECRET
+      - key: MONGODB_URI
+        sync: false
+    autoDeploy: true 

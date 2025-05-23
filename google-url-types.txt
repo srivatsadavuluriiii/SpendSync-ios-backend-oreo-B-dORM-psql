@@ -1,0 +1,16 @@
+To fix the Info.plist duplicate file issue, follow these steps in Xcode:
+
+1. Open your project in Xcode
+2. Select your project in the Project Navigator
+3. Select your target (SpendSync-ios-mocha-sUI-OAuth-RBD)
+4. Go to the "Info" tab
+5. Expand "URL Types" and click "+"
+6. Add the following:
+   - Identifier: (leave blank or use "google")
+   - URL Schemes: com.googleusercontent.apps.259479300315-6ef3ed01igu1gtjbulcuagb4bcdtpdua
+   - Role: Editor
+
+7. Then, directly in your code, replace any Bundle.main.object(forInfoDictionaryKey: "GIDClientID") with the hardcoded value:
+   "259479300315-6ef3ed01igu1gtjbulcuagb4bcdtpdua.apps.googleusercontent.com"
+
+This way, you don't have to create a separate Info.plist file, and you avoid the duplicate file conflict during build. 

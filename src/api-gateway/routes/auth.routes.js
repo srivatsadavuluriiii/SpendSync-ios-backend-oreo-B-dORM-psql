@@ -46,4 +46,11 @@ router.post('/logout', asyncHandler(authController.logout));
  */
 router.get('/me', asyncHandler(authController.getCurrentUser));
 
+/**
+ * @route POST /api/v1/auth/google
+ * @desc Authenticate with Google OAuth
+ * @access Public
+ */
+router.post('/google', asyncHandler(authController.googleAuth));
+
 module.exports = router; 

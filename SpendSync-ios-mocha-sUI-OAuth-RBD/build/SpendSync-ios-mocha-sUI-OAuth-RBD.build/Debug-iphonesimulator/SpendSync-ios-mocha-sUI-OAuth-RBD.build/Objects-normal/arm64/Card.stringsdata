@@ -1,0 +1,40 @@
+{
+  "source": "/Users/carson/Downloads/SpendSync-ios-backend-oreo-B-dORM-psql-main/SpendSync-ios-mocha-sUI-OAuth-RBD/SpendSync-ios-mocha-sUI-OAuth-RBD/Components/Card.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Primary Card",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 111
+        }
+      },
+      {
+        "comment": "",
+        "key": "Secondary Card",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 111
+        }
+      },
+      {
+        "comment": "",
+        "key": "Outline Card",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 111
+        }
+      },
+      {
+        "comment": "",
+        "key": "Elevated Card",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 111
+        }
+      }
+    ]
+  },
+  "version": 1
+}

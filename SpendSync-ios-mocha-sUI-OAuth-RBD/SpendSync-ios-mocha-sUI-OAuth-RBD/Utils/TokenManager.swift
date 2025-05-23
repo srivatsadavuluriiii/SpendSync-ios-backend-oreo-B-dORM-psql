@@ -1,0 +1,286 @@
+import Foundation
+import Security
+import Combine
+
+class TokenManager {
+    private static let tokenKey = "auth_token"
+    private static let refreshTokenKey = "refresh_token"
+    private static let userIdKey = "user_id"
+    
+    // Publisher for token refresh events
+    static let tokenRefreshPublisher = PassthroughSubject<String, Never>()
+    private static var refreshTask: Task<Void, Never>?
+    
+    // MARK: - Token Management
+    
+    static func saveToken(_ token: String) {
+        saveTokenToKeychain(token)
+        
+        // Schedule token refresh if needed
+        scheduleTokenRefresh(token)
+    }
+    
+    static func saveRefreshToken(_ refreshToken: String) {
+        saveDataToKeychain(refreshToken.data(using: .utf8)!, forKey: refreshTokenKey)
+    }
+    
+    static func getToken() -> String? {
+        return getTokenFromKeychain()
+    }
+    
+    static func getRefreshToken() -> String? {
+        if let data = getDataFromKeychain(forKey: refreshTokenKey) {
+            return String(data: data, encoding: .utf8)
+        }
+        return nil
+    }
+    
+    static func deleteToken() {
+        deleteItemFromKeychain(forKey: tokenKey)
+        cancelRefreshTask()
+    }
+    
+    static func deleteRefreshToken() {
+        deleteItemFromKeychain(forKey: refreshTokenKey)
+    }
+    
+    static func isAuthenticated() -> Bool {
+        return getToken() != nil
+    }
+    
+    // MARK: - User ID Management
+    
+    static func saveUserId(_ userId: String) {
+        saveDataToKeychain(userId.data(using: .utf8)!, forKey: userIdKey)
+    }
+    
+    static func getUserId() -> String? {
+        if let data = getDataFromKeychain(forKey: userIdKey) {
+            return String(data: data, encoding: .utf8)
+        }
+        return nil
+    }
+    
+    static func deleteUserId() {
+        deleteItemFromKeychain(forKey: userIdKey)
+    }
+    
+    // MARK: - Token Refresh Logic
+    
+    static func scheduleTokenRefresh(_ token: String) {
+        // Cancel any existing refresh tasks
+        cancelRefreshTask()
+        
+        // Get expiration time from JWT
+        guard let expirationDate = getTokenExpirationDate(token) else {
+            print("⚠️ Could not determine token expiration date")
+            // Set a default refresh time in 50 minutes if we can't parse the token
+            let defaultExpirationDate = Date().addingTimeInterval(3000) // 50 minutes
+            scheduleRefreshFor(defaultExpirationDate)
+            return
+        }
+        
+        scheduleRefreshFor(expirationDate)
+    }
+    
+    private static func scheduleRefreshFor(_ expirationDate: Date) {
+        // Calculate refresh time (refresh token before it expires)
+        let refreshDate = expirationDate.addingTimeInterval(-Config.tokenExpirationBuffer)
+        let now = Date()
+        
+        // Only schedule if the token isn't already expired
+        if refreshDate > now {
+            let timeUntilRefresh = refreshDate.timeIntervalSince(now)
+            print("🔄 Scheduling token refresh in \(Int(timeUntilRefresh)) seconds")
+            
+            refreshTask = Task {
+                // Wait until it's time to refresh
+                try? await Task.sleep(nanoseconds: UInt64(timeUntilRefresh * 1_000_000_000))
+                
+                // Make sure the task wasn't cancelled
+                if !Task.isCancelled {
+                    await refreshTokenIfNeeded()
+                }
+            }
+        } else {
+            print("⚠️ Token is already expired or about to expire")
+            // Attempt immediate refresh if token is expired or about to expire
+            Task {
+                await refreshTokenIfNeeded()
+            }
+        }
+    }
+    
+    static func cancelRefreshTask() {
+        refreshTask?.cancel()
+        refreshTask = nil
+    }
+    
+    static func refreshTokenIfNeeded() async {
+        guard let refreshToken = getRefreshToken() else {
+            print("⚠️ No refresh token available")
+            return
+        }
+        
+        do {
+            // Create a publisher for the refresh token API call
+            let publisher: AnyPublisher<AuthResponse, APIError> = APIClient.refreshToken(refreshToken: refreshToken)
+            
+            // Convert the publisher to an async/await call
+            let response = try await publisher.async()
+            
+            // Save the new tokens
+            saveToken(response.token)
+            if let newRefreshToken = response.refreshToken {
+                saveRefreshToken(newRefreshToken)
+            }
+            
+            // Notify listeners about the token refresh
+            tokenRefreshPublisher.send(response.token)
+            print("✅ Token refreshed successfully")
+        } catch {
+            print("❌ Failed to refresh token: \(error.localizedDescription)")
+            // Don't sign out immediately on failure - the next API call will fail with 401
+            // and the app can handle that appropriately
+        }
+    }
+    
+    // Parse JWT to get expiration date
+    static func getTokenExpirationDate(_ token: String) -> Date? {
+        do {
+            let parts = token.components(separatedBy: ".")
+            guard parts.count == 3 else {
+                return nil
+            }
+            
+            // Base64 decode the payload
+            let payload = parts[1]
+            var base64 = payload
+                .replacingOccurrences(of: "-", with: "+")
+                .replacingOccurrences(of: "_", with: "/")
+            
+            // Add padding if needed
+            let length = Double(base64.count)
+            let requiredLength = 4 * ceil(length / 4.0)
+            let paddingLength = requiredLength - length
+            if paddingLength > 0 {
+                let padding = String(repeating: "=", count: Int(paddingLength))
+                base64.append(padding)
+            }
+            
+            // Decode the payload
+            guard let data = Data(base64Encoded: base64) else {
+                return nil
+            }
+            
+            // Parse the JSON
+            guard let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] else {
+                return nil
+            }
+            
+            // Get the expiration time
+            if let exp = json["exp"] as? TimeInterval {
+                return Date(timeIntervalSince1970: exp)
+            }
+            
+            return nil
+        } catch {
+            print("❌ Failed to decode JWT: \(error.localizedDescription)")
+            return nil
+        }
+    }
+    
+    // MARK: - Keychain Implementation
+    
+    static func saveTokenToKeychain(_ token: String) -> Bool {
+        let tokenData = token.data(using: .utf8)!
+        return saveDataToKeychain(tokenData, forKey: tokenKey)
+    }
+    
+    static func getTokenFromKeychain() -> String? {
+        guard let tokenData = getDataFromKeychain(forKey: tokenKey) else {
+            return nil
+        }
+        return String(data: tokenData, encoding: .utf8)
+    }
+    
+    // Generic keychain access methods
+    static func saveDataToKeychain(_ data: Data, forKey key: String) -> Bool {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: key,
+            kSecValueData as String: data,
+            kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlocked
+        ]
+        
+        // First try to delete any existing item
+        SecItemDelete(query as CFDictionary)
+        
+        // Add the new item
+        let status = SecItemAdd(query as CFDictionary, nil)
+        return status == errSecSuccess
+    }
+    
+    static func getDataFromKeychain(forKey key: String) -> Data? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: key,
+            kSecReturnData as String: kCFBooleanTrue!,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+        
+        var dataTypeRef: AnyObject?
+        let status = SecItemCopyMatching(query as CFDictionary, &dataTypeRef)
+        
+        if status == errSecSuccess, let retrievedData = dataTypeRef as? Data {
+            return retrievedData
+        } else {
+            return nil
+        }
+    }
+    
+    static func deleteItemFromKeychain(forKey key: String) -> Bool {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: key
+        ]
+        
+        let status = SecItemDelete(query as CFDictionary)
+        return status == errSecSuccess || status == errSecItemNotFound
+    }
+    
+    // MARK: - Complete Authentication Cleanup
+    
+    static func clearAllAuthData() {
+        deleteToken()
+        deleteRefreshToken()
+        deleteUserId()
+    }
+}
+
+// MARK: - Extensions to support async/await with Combine
+
+extension Publisher {
+    func async() async throws -> Output {
+        try await withCheckedThrowingContinuation { continuation in
+            var cancellable: AnyCancellable?
+            
+            cancellable = self
+                .sink(
+                    receiveCompletion: { completion in
+                        switch completion {
+                        case .finished:
+                            break
+                        case .failure(let error):
+                            continuation.resume(throwing: error)
+                        }
+                        cancellable?.cancel()
+                    },
+                    receiveValue: { value in
+                        continuation.resume(returning: value)
+                        cancellable?.cancel()
+                    }
+                )
+        }
+    }
+} 

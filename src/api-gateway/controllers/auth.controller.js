@@ -8,6 +8,10 @@ const jwt = require('jsonwebtoken');
 const config = require('../config');
 const { authService } = require('../middleware/auth.middleware');
 const { makeServiceRequest } = require('../utils/service-proxy');
+const { OAuth2Client } = require('google-auth-library');
+
+// Create Google OAuth client
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 /**
  * Register a new user
@@ -127,10 +131,57 @@ const getCurrentUser = async (req, res) => {
   }
 };
 
+/**
+ * Authenticate with Google
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const googleAuth = async (req, res) => {
+  try {
+    const { token } = req.body;
+    
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        message: 'Google token is required'
+      });
+    }
+    
+    // Verify Google ID token
+    const ticket = await googleClient.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID
+    });
+    
+    const payload = ticket.getPayload();
+    
+    // Get or create user based on Google profile
+    const response = await makeServiceRequest('userService', 'POST', '/api/auth/google', {
+      googleId: payload.sub,
+      email: payload.email,
+      name: payload.name,
+      picture: payload.picture,
+      givenName: payload.given_name,
+      familyName: payload.family_name
+    }, req.headers);
+    
+    // Return the user and tokens
+    res.json(response.data);
+  } catch (error) {
+    console.error('Google auth error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Google authentication failed',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   register,
   login,
   refreshToken,
   logout,
-  getCurrentUser
+  getCurrentUser,
+  googleAuth
 }; 
