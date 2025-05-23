@@ -5,8 +5,7 @@
   "main": "src/api-gateway/index.js",
   "scripts": {
     "setup": "chmod +x scripts/setup-dev.sh && ./scripts/setup-dev.sh",
-    "setup:render": "chmod +x scripts/setup-render.sh && ./scripts/setup-render.sh",
-    "start": "npm run setup:render && node --expose-gc src/api-gateway/index.js",
+    "start": "node --expose-gc src/api-gateway/index.js",
     "dev": "npm run setup && nodemon --inspect=0.0.0.0:9229 src/api-gateway/index.js",
     "dev:services": "docker-compose up --remove-orphans",
     "dev:build": "docker-compose build --no-cache",
