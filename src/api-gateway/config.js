@@ -9,7 +9,9 @@ const env = process.env.NODE_ENV || 'development';
 // Validate required environment variables
 const requiredEnvVars = {
   production: [
-    'JWT_SECRET',
+    'SUPABASE_URL',
+    'SUPABASE_ANON_KEY',
+    'SUPABASE_SERVICE_ROLE_KEY',
     'USER_SERVICE_URL',
     'EXPENSE_SERVICE_URL',
     'SETTLEMENT_SERVICE_URL',
@@ -17,8 +19,8 @@ const requiredEnvVars = {
     'ANALYTICS_SERVICE_URL',
     'PAYMENT_SERVICE_URL'
   ],
-  development: ['JWT_SECRET'],
-  test: ['JWT_SECRET']
+  development: ['SUPABASE_URL', 'SUPABASE_ANON_KEY'],
+  test: ['SUPABASE_URL', 'SUPABASE_ANON_KEY']
 };
 
 function validateEnvVars() {
@@ -96,10 +98,10 @@ const circuitBreaker = {
 
 // Security configuration
 const security = {
-  jwt: {
-    secret: process.env.JWT_SECRET,
-    expiresIn: process.env.JWT_EXPIRES_IN || '24h',
-    refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d'
+  supabase: {
+    url: process.env.SUPABASE_URL,
+    anonKey: process.env.SUPABASE_ANON_KEY,
+    serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY
   },
   cors: {
     origin: process.env.CORS_ORIGIN || (env === 'production' ? [] : '*'),

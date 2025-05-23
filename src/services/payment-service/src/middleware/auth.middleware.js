@@ -1,6 +1,17 @@
-import jwt from 'jsonwebtoken';
+/**
+ * Payment Service Authentication Middleware
+ * 
+ * Updated to use Supabase Auth instead of JWT
+ */
 
-export const authenticate = (req, res, next) => {
+const { createClient } = require('@supabase/supabase-js');
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
+export const authenticate = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
@@ -12,13 +23,16 @@ export const authenticate = (req, res, next) => {
       return res.status(401).json({ error: 'Invalid token format' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+    // Verify Supabase token
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    
+    if (error || !user) {
+      return res.status(401).json({ error: 'Invalid or expired token' });
+    }
+
+    req.user = user;
     next();
   } catch (error) {
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ error: 'Token expired' });
-    }
-    return res.status(401).json({ error: 'Invalid token' });
+    return res.status(401).json({ error: 'Authentication failed' });
   }
 };

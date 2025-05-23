@@ -1,104 +1,92 @@
 version: '3.8'
 
 services:
-  # MongoDB database
+  # MongoDB Database
   mongodb:
-    image: mongo:5.0
+    image: mongo:7.0
     container_name: spendsync-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: spendsync
     ports:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=spendsync
-      - MONGO_INITDB_ROOT_PASSWORD=spendsyncdev
+      - ./scripts/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     networks:
       - spendsync-network
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-        reservations:
-          memory: 512M
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
-      interval: 30s
-      timeout: 10s
-      retries: 3
+
+  # Redis Cache
+  redis:
+    image: redis:7.2-alpine
+    container_name: spendsync-redis
     restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - spendsync-network
 
   # API Gateway
   api-gateway:
     build:
       context: .
-      dockerfile: ./docker/api-gateway/Dockerfile
+      dockerfile: docker/Dockerfile.gateway
     container_name: spendsync-api-gateway
+    restart: unless-stopped
     ports:
-      - "3000:3000"
-      - "9229:9229"
+      - "4000:4000"
     environment:
       - NODE_ENV=development
-      - PORT=3000
+      - PORT=4000
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - MONGODB_URI=mongodb://admin:password123@mongodb:27017/spendsync?authSource=admin
+      - REDIS_URL=redis://redis:6379
       - USER_SERVICE_URL=http://user-service:3001
       - EXPENSE_SERVICE_URL=http://expense-service:3002
       - SETTLEMENT_SERVICE_URL=http://settlement-service:3003
       - NOTIFICATION_SERVICE_URL=http://notification-service:3004
-      - ANALYTICS_SERVICE_URL=http://analytics-service:3005
-      - PAYMENT_SERVICE_URL=http://payment-service:3006
-      - JWT_SECRET=spendsync-secret-key-dev
-      - CORS_ORIGIN=*
-    volumes:
-      - .:/app
-      - /app/node_modules
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-        reservations:
-          memory: 512M
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - PAYMENT_SERVICE_URL=http://payment-service:3005
+      - ANALYTICS_SERVICE_URL=http://analytics-service:3006
+    depends_on:
+      - mongodb
+      - redis
+      - user-service
+      - expense-service
+      - settlement-service
+      - notification-service
+      - payment-service
+      - analytics-service
     networks:
       - spendsync-network
-    restart: unless-stopped
-    depends_on:
-      mongodb:
-        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
 
   # User Service
   user-service:
     build:
       context: .
-      dockerfile: ./docker/user-service/Dockerfile
+      dockerfile: docker/Dockerfile.user
     container_name: spendsync-user-service
+    restart: unless-stopped
     ports:
       - "3001:3001"
-      - "9230:9229"  # Debug port
     environment:
       - NODE_ENV=development
       - PORT=3001
-      - MONGODB_URI=mongodb://spendsync:spendsyncdev@mongodb:27017/spendsync_users
-      - JWT_SECRET=spendsync-secret-key-dev
-    volumes:
-      - .:/app
-      - /app/node_modules
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-        reservations:
-          memory: 512M
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - MONGODB_URI=mongodb://admin:password123@mongodb:27017/spendsync?authSource=admin
+      - REDIS_URL=redis://redis:6379
     depends_on:
-      mongodb:
-        condition: service_healthy
+      - mongodb
+      - redis
     networks:
       - spendsync-network
 
@@ -106,33 +94,20 @@ services:
   expense-service:
     build:
       context: .
-      dockerfile: ./docker/expense-service/Dockerfile
+      dockerfile: docker/Dockerfile.expense
     container_name: spendsync-expense-service
+    restart: unless-stopped
     ports:
       - "3002:3002"
-      - "9231:9229"  # Debug port
     environment:
       - NODE_ENV=development
       - PORT=3002
-      - MONGODB_URI=mongodb://spendsync:spendsyncdev@mongodb:27017/spendsync_expenses
+      - MONGODB_URI=mongodb://admin:password123@mongodb:27017/spendsync?authSource=admin
+      - REDIS_URL=redis://redis:6379
       - USER_SERVICE_URL=http://user-service:3001
-      - NOTIFICATION_SERVICE_URL=http://notification-service:3004
-    volumes:
-      - .:/app
-      - /app/node_modules
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-        reservations:
-          memory: 512M
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
     depends_on:
       - mongodb
+      - redis
       - user-service
     networks:
       - spendsync-network
@@ -141,60 +116,73 @@ services:
   settlement-service:
     build:
       context: .
-      dockerfile: ./docker/settlement-service/Dockerfile
+      dockerfile: docker/Dockerfile.settlement
     container_name: spendsync-settlement-service
+    restart: unless-stopped
     ports:
       - "3003:3003"
-      - "9232:9229"
     environment:
       - NODE_ENV=development
       - PORT=3003
-      - MONGODB_URI=mongodb://spendsync:spendsyncdev@mongodb:27017/spendsync_settlements
-      - EXPENSE_SERVICE_URL=http://expense-service:3002
+      - MONGODB_URI=mongodb://admin:password123@mongodb:27017/spendsync?authSource=admin
+      - REDIS_URL=redis://redis:6379
       - USER_SERVICE_URL=http://user-service:3001
-      - PAYMENT_SERVICE_URL=http://payment-service:3006
-    volumes:
-      - .:/app
-      - /app/node_modules
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-        reservations:
-          memory: 512M
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3003/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - EXPENSE_SERVICE_URL=http://expense-service:3002
+    depends_on:
+      - mongodb
+      - redis
+      - user-service
+      - expense-service
     networks:
       - spendsync-network
-    restart: unless-stopped
-    depends_on:
-      mongodb:
-        condition: service_healthy
 
   # Notification Service
   notification-service:
     build:
       context: .
-      dockerfile: ./docker/notification-service/Dockerfile
+      dockerfile: docker/Dockerfile.notification
     container_name: spendsync-notification-service
+    restart: unless-stopped
     ports:
       - "3004:3004"
     environment:
       - NODE_ENV=development
       - PORT=3004
-      - MONGODB_URI=mongodb://spendsync:spendsyncdev@mongodb:27017/spendsync_notifications
-      - USER_SERVICE_URL=http://user-service:3001
-      - EMAIL_HOST=mailhog
-      - EMAIL_PORT=1025
-      - EMAIL_SECURE=false
-    volumes:
-      - ./src/services/notification-service/src:/app/src
+      - MONGODB_URI=mongodb://admin:password123@mongodb:27017/spendsync?authSource=admin
+      - REDIS_URL=redis://redis:6379
+      - EMAIL_SERVICE_API_KEY=${EMAIL_SERVICE_API_KEY}
+      - SMS_SERVICE_API_KEY=${SMS_SERVICE_API_KEY}
     depends_on:
       - mongodb
-      - mailhog
+      - redis
+    networks:
+      - spendsync-network
+
+  # Payment Service
+  payment-service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.payment
+    container_name: spendsync-payment-service
+    restart: unless-stopped
+    ports:
+      - "3005:3005"
+    environment:
+      - NODE_ENV=development
+      - PORT=3005
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - MONGODB_URI=mongodb://admin:password123@mongodb:27017/spendsync?authSource=admin
+      - REDIS_URL=redis://redis:6379
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - PLAID_CLIENT_ID=${PLAID_CLIENT_ID}
+      - PLAID_SECRET=${PLAID_SECRET}
+      - PLAID_ENV=${PLAID_ENV:-sandbox}
+    depends_on:
+      - mongodb
+      - redis
     networks:
       - spendsync-network
 
@@ -202,89 +190,33 @@ services:
   analytics-service:
     build:
       context: .
-      dockerfile: ./docker/analytics-service/Dockerfile
+      dockerfile: docker/Dockerfile.analytics
     container_name: spendsync-analytics-service
-    ports:
-      - "3005:3005"
-      - "9234:9229"
-    environment:
-      - NODE_ENV=development
-      - PORT=3005
-      - MONGODB_URI=mongodb://spendsync:spendsyncdev@mongodb:27017/spendsync_analytics
-      - USER_SERVICE_URL=http://user-service:3001
-      - EXPENSE_SERVICE_URL=http://expense-service:3002
-    volumes:
-      - .:/app
-      - /app/node_modules
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-        reservations:
-          memory: 512M
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3005/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - spendsync-network
     restart: unless-stopped
-    depends_on:
-      mongodb:
-        condition: service_healthy
-
-  # Payment Service
-  payment-service:
-    build:
-      context: .
-      dockerfile: ./docker/payment-service/Dockerfile
-    container_name: spendsync-payment-service
     ports:
       - "3006:3006"
-      - "9235:9229"
     environment:
       - NODE_ENV=development
       - PORT=3006
-      - MONGODB_URI=mongodb://spendsync:spendsyncdev@mongodb:27017/spendsync_payments
-      - STRIPE_SECRET_KEY=your_stripe_secret_key_here
-      - STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret_here
+      - MONGODB_URI=mongodb://admin:password123@mongodb:27017/spendsync?authSource=admin
+      - REDIS_URL=redis://redis:6379
+      - USER_SERVICE_URL=http://user-service:3001
+      - EXPENSE_SERVICE_URL=http://expense-service:3002
       - SETTLEMENT_SERVICE_URL=http://settlement-service:3003
-      - NOTIFICATION_SERVICE_URL=http://notification-service:3004
-      - METRICS_ENABLED=true
-    volumes:
-      - .:/app
-      - /app/node_modules
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-        reservations:
-          memory: 512M
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3006/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - spendsync-network
-    restart: unless-stopped
     depends_on:
-      mongodb:
-        condition: service_healthy
-
-  # Mail testing service
-  mailhog:
-    image: mailhog/mailhog
-    container_name: spendsync-mailhog
-    ports:
-      - "8025:8025" # Web UI
-      - "1025:1025" # SMTP server
+      - mongodb
+      - redis
+      - user-service
+      - expense-service
+      - settlement-service
     networks:
       - spendsync-network
 
 volumes:
   mongodb_data:
+    driver: local
+  redis_data:
+    driver: local
 
 networks:
   spendsync-network:

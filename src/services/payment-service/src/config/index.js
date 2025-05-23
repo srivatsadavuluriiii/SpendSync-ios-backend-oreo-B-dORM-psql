@@ -6,7 +6,7 @@ dotenv.config();
 const config = {
   app: {
     name: 'payment-service',
-    port: process.env.PORT || 3004,
+    port: process.env.PORT || 3005,
     env: process.env.NODE_ENV || 'development'
   },
   db: {
@@ -26,9 +26,10 @@ const config = {
     secret: process.env.PLAID_SECRET,
     env: process.env.PLAID_ENV || 'sandbox'
   },
-  jwt: {
-    secret: process.env.JWT_SECRET,
-    expiresIn: '24h'
+  supabase: {
+    url: process.env.SUPABASE_URL,
+    anonKey: process.env.SUPABASE_ANON_KEY,
+    serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY
   },
   cors: {
     origin: process.env.CORS_ORIGIN || '*',
@@ -52,7 +53,9 @@ const config = {
 const requiredConfig = [
   'stripe.secretKey',
   'stripe.webhookSecret',
-  'mongodb.uri'
+  'db.uri',
+  'supabase.url',
+  'supabase.serviceRoleKey'
 ];
 
 const validateConfig = () => {
