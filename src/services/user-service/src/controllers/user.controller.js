@@ -254,6 +254,56 @@ async function updateProfile(req, res, next) {
 }
 
 /**
+ * Create user profile (for OAuth users)
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
+async function createProfile(req, res, next) {
+  try {
+    const userId = req.user.id;
+    const { firstName, lastName, avatarUrl, phone } = req.body;
+    
+    // Check if user already has a profile
+    const existingUser = await userService.getUserById(userId);
+    if (!existingUser) {
+      throw new NotFoundError('User not found');
+    }
+    
+    // Create profile data
+    const profileData = {
+      name: `${firstName || ''} ${lastName || ''}`.trim() || existingUser.name,
+      profileImage: avatarUrl || existingUser.profileImage,
+      phoneNumber: phone || existingUser.phoneNumber,
+      firstName,
+      lastName
+    };
+    
+    // Update user with profile data
+    const updatedUser = await userService.updateUser(userId, profileData);
+    
+    res.status(201).json({
+      success: true,
+      data: {
+        id: updatedUser.id,
+        email: updatedUser.email,
+        name: updatedUser.name,
+        firstName: profileData.firstName,
+        lastName: profileData.lastName,
+        profileImage: updatedUser.profileImage,
+        phoneNumber: updatedUser.phoneNumber,
+        preferences: updatedUser.preferences,
+        createdAt: updatedUser.createdAt,
+        updatedAt: updatedUser.updatedAt
+      },
+      message: 'Profile created successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
  * Change password
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
@@ -556,6 +606,7 @@ module.exports = {
   logout,
   getProfile,
   updateProfile,
+  createProfile,
   changePassword,
   getFriends,
   inviteFriend,

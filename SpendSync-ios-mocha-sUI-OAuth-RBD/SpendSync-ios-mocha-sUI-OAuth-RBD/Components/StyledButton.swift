@@ -35,7 +35,7 @@ struct ButtonStyle: ViewModifier {
         case .primary:
             return Color.blue
         case .secondary:
-            return Color.gray.opacity(0.2)
+            return Color.secondary.opacity(0.2)
         case .outline:
             return Color.clear
         case .danger:

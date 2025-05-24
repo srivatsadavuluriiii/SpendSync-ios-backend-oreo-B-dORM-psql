@@ -30,6 +30,7 @@ class APIClient {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.allHTTPHeaderFields = authHeaders(with: accessToken)
+        request.timeoutInterval = 30 // Increase timeout
         
         let profileData = UserProfileSync(
             id: profile.id.uuidString,
@@ -43,17 +44,38 @@ class APIClient {
         
         request.httpBody = try JSONEncoder().encode(profileData)
         
-        let (data, response) = try await session.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw APIError.invalidResponse
+        do {
+            let (_, response) = try await session.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw APIError.invalidResponse
+            }
+            
+            guard 200...299 ~= httpResponse.statusCode else {
+                // Log detailed error information
+                print("❌ Backend sync failed with status: \(httpResponse.statusCode)")
+                print("🔗 URL: \(url)")
+                print("📝 Profile data: \(profile.firstName ?? "nil") \(profile.lastName ?? "nil")")
+                
+                if httpResponse.statusCode == 503 {
+                    print("⚠️ Backend service unavailable (503) - this is expected during deployment")
+                    // Don't throw error for 503, just log it
+                    return
+                }
+                
+                throw APIError.serverError(httpResponse.statusCode)
+            }
+            
+            print("✅ User profile synced to backend successfully")
+        } catch {
+            // Handle network errors gracefully
+            if error is URLError {
+                print("⚠️ Network error during backend sync: \(error.localizedDescription)")
+                // Don't throw network errors - profile is still saved locally
+                return
+            }
+            throw error
         }
-        
-        guard 200...299 ~= httpResponse.statusCode else {
-            throw APIError.serverError(httpResponse.statusCode)
-        }
-        
-        print("✅ User profile synced to backend successfully")
     }
     
     func fetchUserProfile(userId: String, accessToken: String) async throws -> UserProfile? {

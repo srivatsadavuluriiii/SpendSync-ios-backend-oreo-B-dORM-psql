@@ -93,7 +93,7 @@ struct HomeView: View {
                                     .padding(.horizontal, 16)
                                     .background(
                                         Capsule()
-                                            .fill(viewModel.currentFilter == filter ? Color.blue : Color.gray.opacity(0.2))
+                                            .fill(viewModel.currentFilter == filter ? Color.blue : Color.secondary.opacity(0.2))
                                     )
                                     .foregroundColor(viewModel.currentFilter == filter ? .white : .primary)
                             }

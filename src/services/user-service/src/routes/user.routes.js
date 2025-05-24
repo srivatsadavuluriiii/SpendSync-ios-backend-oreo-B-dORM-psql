@@ -38,6 +38,18 @@ router.post(
 );
 
 /**
+ * @route   POST /api/users/profile
+ * @desc    Create user profile (for OAuth users)
+ * @access  Private
+ */
+router.post(
+  '/profile',
+  auth(),
+  validate(updateProfileSchema),
+  userController.createProfile
+);
+
+/**
  * @route   PUT /api/users/profile
  * @desc    Update user profile
  * @access  Private
