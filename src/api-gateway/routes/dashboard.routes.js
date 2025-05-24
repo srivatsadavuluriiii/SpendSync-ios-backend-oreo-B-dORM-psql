@@ -7,7 +7,7 @@
 const express = require('express');
 const serviceRegistry = require('../../shared/services/service-registry');
 const { cacheMiddleware, clearCache, getCacheStats } = require('../../shared/middleware/cache.middleware');
-const { authenticate } = require('../middleware/auth.middleware');
+const { authenticate, authorize } = require('../middleware/auth.middleware');
 const router = express.Router();
 
 /**
@@ -15,7 +15,7 @@ const router = express.Router();
  * @desc Get status of all services
  * @access Private (admin)
  */
-router.get('/services', authenticate({ required: true, roles: ['admin'] }), (req, res) => {
+router.get('/services', authenticate, authorize(['admin']), (req, res) => {
   const services = serviceRegistry.getAllServicesStatus();
   res.json({ services });
 });
@@ -25,7 +25,7 @@ router.get('/services', authenticate({ required: true, roles: ['admin'] }), (req
  * @desc Get status of a specific service
  * @access Private (admin)
  */
-router.get('/services/:name', authenticate({ required: true, roles: ['admin'] }), (req, res) => {
+router.get('/services/:name', authenticate, authorize(['admin']), (req, res) => {
   const { name } = req.params;
   const service = serviceRegistry.getServiceStatus(name);
   res.json({ service });
@@ -36,7 +36,7 @@ router.get('/services/:name', authenticate({ required: true, roles: ['admin'] })
  * @desc Get cache statistics
  * @access Private (admin)
  */
-router.get('/cache', authenticate({ required: true, roles: ['admin'] }), (req, res) => {
+router.get('/cache', authenticate, authorize(['admin']), (req, res) => {
   const stats = getCacheStats();
   res.json({ cache: stats });
 });
@@ -46,7 +46,7 @@ router.get('/cache', authenticate({ required: true, roles: ['admin'] }), (req, r
  * @desc Clear cache by pattern
  * @access Private (admin)
  */
-router.post('/cache/clear', authenticate({ required: true, roles: ['admin'] }), (req, res) => {
+router.post('/cache/clear', authenticate, authorize(['admin']), (req, res) => {
   const { pattern } = req.body;
   const cleared = clearCache(pattern);
   res.json({
@@ -61,7 +61,7 @@ router.post('/cache/clear', authenticate({ required: true, roles: ['admin'] }), 
  * @desc Admin dashboard UI
  * @access Private (admin)
  */
-router.get('/', authenticate({ required: true, roles: ['admin'] }), (req, res) => {
+router.get('/', authenticate, authorize(['admin']), (req, res) => {
   res.send(`
     <!DOCTYPE html>
     <html lang="en">
