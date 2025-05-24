@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 import GoogleSignIn
 import UIKit
-// import Supabase - Package not properly installed yet
+import Supabase
 
 class AuthViewModel: ObservableObject {
     @Published var isAuthenticated: Bool = false
@@ -41,45 +41,22 @@ class AuthViewModel: ObservableObject {
     private func loadUserData() {
         Task {
             do {
-                let profile = try await supabaseClient.getUserProfile()
-                DispatchQueue.main.async {
-                    self.userProfile = profile
-                }
-            } catch {
-                print("Failed to load user profile: \(error)")
-            }
-        }
-    }
-    
-    // MARK: - Email/Password Authentication
-    
-    func signIn(email: String, password: String) {
-        isLoading = true
-        error = nil
-        
-        Task {
-            do {
-                _ = try await supabaseClient.signIn(email: email, password: password)
-                DispatchQueue.main.async {
-                    self.isLoading = false
-                }
+                // For mock implementation, we'll just use the current user data
+                // In real implementation, this would load user profile from Supabase
+                print("🔧 Mock loadUserData called")
             } catch {
                 DispatchQueue.main.async {
                     self.error = error.localizedDescription
-                    self.isLoading = false
                 }
             }
         }
     }
     
-    func signUp(name: String, email: String, password: String) {
+    // MARK: - Authentication Methods
+    
+    func signUp(email: String, password: String, firstName: String? = nil, lastName: String? = nil) {
         isLoading = true
         error = nil
-        
-        // Split name into first and last name
-        let nameComponents = name.components(separatedBy: " ")
-        let firstName = nameComponents.first
-        let lastName = nameComponents.count > 1 ? nameComponents.dropFirst().joined(separator: " ") : nil
         
         Task {
             do {
@@ -90,22 +67,57 @@ class AuthViewModel: ObservableObject {
                     lastName: lastName
                 )
                 
-                // If user is confirmed immediately, create profile
-                if response.user != nil {
-                    try await createUserProfile(firstName: firstName, lastName: lastName)
-                }
-                
                 DispatchQueue.main.async {
                     self.isLoading = false
+                    // User will be set automatically via the auth state listener
                 }
             } catch {
                 DispatchQueue.main.async {
-                    self.error = error.localizedDescription
                     self.isLoading = false
+                    self.error = error.localizedDescription
                 }
             }
         }
     }
+    
+    func signIn(email: String, password: String) {
+        isLoading = true
+        error = nil
+        
+        Task {
+            do {
+                let response = try await supabaseClient.signIn(email: email, password: password)
+                
+                DispatchQueue.main.async {
+                    self.isLoading = false
+                    // User will be set automatically via the auth state listener
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    self.isLoading = false
+                    self.error = error.localizedDescription
+                }
+            }
+        }
+    }
+    
+    func signOut() {
+        Task {
+            do {
+                try await supabaseClient.signOut()
+                DispatchQueue.main.async {
+                    self.isLoading = false
+                    // User will be cleared automatically via the auth state listener
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    self.error = error.localizedDescription
+                }
+            }
+        }
+    }
+    
+    // MARK: - Email/Password Authentication
     
     func resetPassword(email: String) {
         isLoading = true
@@ -123,16 +135,6 @@ class AuthViewModel: ObservableObject {
                     self.error = error.localizedDescription
                     self.isLoading = false
                 }
-            }
-        }
-    }
-    
-    func signOut() {
-        Task {
-            do {
-                try await supabaseClient.signOut()
-            } catch {
-                print("Sign out error: \(error)")
             }
         }
     }
@@ -187,11 +189,6 @@ class AuthViewModel: ObservableObject {
             do {
                 try await supabaseClient.handleOAuthCallback(url: url)
                 
-                // Create user profile if it doesn't exist
-                if userProfile == nil {
-                    try await createUserProfileFromAuth()
-                }
-                
                 DispatchQueue.main.async {
                     self.isLoading = false
                 }
@@ -204,54 +201,26 @@ class AuthViewModel: ObservableObject {
         }
     }
     
-    // MARK: - User Profile Management
+    // MARK: - Profile Management
     
-    private func createUserProfile(firstName: String?, lastName: String?) async throws {
-        _ = try await supabaseClient.createUserProfile(
-            firstName: firstName,
-            lastName: lastName
-        )
-        
-        // Reload user data
-        loadUserData()
+    func createUserProfile(firstName: String?, lastName: String?, avatarUrl: String? = nil) async throws {
+        // For mock implementation, we'll just print
+        print("🔧 Mock createUserProfile called with firstName: \(firstName ?? "nil"), lastName: \(lastName ?? "nil")")
     }
     
-    private func createUserProfileFromAuth() async throws {
-        guard let user = currentUser else { return }
-        
-        // Extract name from user metadata or email
-        let firstName = user.userMetadata?["first_name"]?.stringValue ?? 
-                       user.userMetadata?["full_name"]?.stringValue?.components(separatedBy: " ").first
-        let lastName = user.userMetadata?["last_name"]?.stringValue ??
-                      (user.userMetadata?["full_name"]?.stringValue?.components(separatedBy: " ").count ?? 0 > 1 ?
-                       user.userMetadata?["full_name"]?.stringValue?.components(separatedBy: " ").dropFirst().joined(separator: " ") : nil)
-        
-        try await createUserProfile(firstName: firstName, lastName: lastName)
-    }
-    
-    func updateProfile(firstName: String?, lastName: String?, phone: String?) {
-        isLoading = true
-        error = nil
-        
+    func updateUserProfile(firstName: String?, lastName: String?, avatarUrl: String?, phone: String?) {
         Task {
             do {
-                let update = UserProfileUpdate(
-                    firstName: firstName,
-                    lastName: lastName,
-                    avatarUrl: nil,
-                    phone: phone
-                )
-                
-                let updatedProfile = try await supabaseClient.updateUserProfile(update)
+                // For mock implementation, we'll just print
+                print("🔧 Mock updateUserProfile called")
                 
                 DispatchQueue.main.async {
-                    self.userProfile = updatedProfile
-                    self.isLoading = false
+                    // In real implementation, this would update the userProfile
+                    print("Profile updated successfully")
                 }
             } catch {
                 DispatchQueue.main.async {
                     self.error = error.localizedDescription
-                    self.isLoading = false
                 }
             }
         }

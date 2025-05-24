@@ -14,6 +14,7 @@
 		B5772E0D2DE145E7006CD246 /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = B5772E0C2DE145E7006CD246 /* PostgREST */; };
 		B5772E0F2DE145E7006CD246 /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = B5772E0E2DE145E7006CD246 /* Realtime */; };
 		B5772E112DE145E7006CD246 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = B5772E102DE145E7006CD246 /* Storage */; };
+		B5B081D32DE14FE20013E41F /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = B5B081D22DE14FE20013E41F /* Supabase */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -50,6 +51,7 @@
 				B5772D902DDFCE66006CD246 /* GoogleSignInSwift in Frameworks */,
 				B5772E112DE145E7006CD246 /* Storage in Frameworks */,
 				B5772E0B2DE145E7006CD246 /* Functions in Frameworks */,
+				B5B081D32DE14FE20013E41F /* Supabase in Frameworks */,
 				B5772E0F2DE145E7006CD246 /* Realtime in Frameworks */,
 				B5772E092DE145E7006CD246 /* Auth in Frameworks */,
 				B5772E0D2DE145E7006CD246 /* PostgREST in Frameworks */,
@@ -63,6 +65,7 @@
 			isa = PBXGroup;
 			children = (
 				B57583F42DDE3821008B58FF /* SpendSync-ios-mocha-sUI-OAuth-RBD */,
+				B5B081D12DE14FE20013E41F /* Frameworks */,
 				B57583F32DDE3821008B58FF /* Products */,
 			);
 			sourceTree = "<group>";
@@ -73,6 +76,13 @@
 				B57583F22DDE3821008B58FF /* SpendSync-ios-mocha-sUI-OAuth-RBD.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		B5B081D12DE14FE20013E41F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -102,6 +112,7 @@
 				B5772E0C2DE145E7006CD246 /* PostgREST */,
 				B5772E0E2DE145E7006CD246 /* Realtime */,
 				B5772E102DE145E7006CD246 /* Storage */,
+				B5B081D22DE14FE20013E41F /* Supabase */,
 			);
 			productName = "SpendSync-ios-mocha-sUI-OAuth-RBD";
 			productReference = B57583F22DDE3821008B58FF /* SpendSync-ios-mocha-sUI-OAuth-RBD.app */;
@@ -422,6 +433,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B5772E072DE1440D006CD246 /* XCRemoteSwiftPackageReference "supabase-swift" */;
 			productName = Storage;
+		};
+		B5B081D22DE14FE20013E41F /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B5772E072DE1440D006CD246 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

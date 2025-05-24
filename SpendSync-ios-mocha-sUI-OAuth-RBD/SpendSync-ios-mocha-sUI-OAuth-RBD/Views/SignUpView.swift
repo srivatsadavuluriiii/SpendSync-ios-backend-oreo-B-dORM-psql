@@ -120,7 +120,7 @@ struct SignUpView: View {
         }
         .navigationTitle("Sign Up")
         .navigationBarTitleDisplayMode(.inline)
-        .onChange(of: authViewModel.isAuthenticated) { isAuthenticated in
+        .onChange(of: authViewModel.isAuthenticated) { _, isAuthenticated in
             if isAuthenticated {
                 dismiss()
             }
@@ -139,7 +139,12 @@ struct SignUpView: View {
     
     private func signUp() {
         if isFormValid() {
-            authViewModel.signUp(name: name, email: email, password: password)
+            // Split name into first and last name (simple approach)
+            let nameParts = name.split(separator: " ", maxSplits: 1)
+            let firstName = nameParts.first.map(String.init)
+            let lastName = nameParts.count > 1 ? String(nameParts[1]) : nil
+            
+            authViewModel.signUp(email: email, password: password, firstName: firstName, lastName: lastName)
         }
     }
 }

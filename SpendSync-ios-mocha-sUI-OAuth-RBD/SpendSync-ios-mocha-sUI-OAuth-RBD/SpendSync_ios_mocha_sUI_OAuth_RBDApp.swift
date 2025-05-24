@@ -8,7 +8,7 @@
 import SwiftUI
 import Foundation
 import GoogleSignIn
-// import Supabase - Package not properly installed yet
+import Supabase
 
 @main
 struct SpendSync_ios_mocha_sUI_OAuth_RBDApp: App {
