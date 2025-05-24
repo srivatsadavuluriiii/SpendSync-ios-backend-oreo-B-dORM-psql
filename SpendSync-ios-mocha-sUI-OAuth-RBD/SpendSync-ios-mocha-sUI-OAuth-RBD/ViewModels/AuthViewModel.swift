@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 import GoogleSignIn
 import UIKit
-// import Supabase - Temporarily commented out until package is properly installed
+// import Supabase - Package not properly installed yet
 
 class AuthViewModel: ObservableObject {
     @Published var isAuthenticated: Bool = false

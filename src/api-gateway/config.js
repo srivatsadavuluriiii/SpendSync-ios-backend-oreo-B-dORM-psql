@@ -11,13 +11,8 @@ const requiredEnvVars = {
   production: [
     'SUPABASE_URL',
     'SUPABASE_ANON_KEY',
-    'SUPABASE_SERVICE_ROLE_KEY',
-    'USER_SERVICE_URL',
-    'EXPENSE_SERVICE_URL',
-    'SETTLEMENT_SERVICE_URL',
-    'NOTIFICATION_SERVICE_URL',
-    'ANALYTICS_SERVICE_URL',
-    'PAYMENT_SERVICE_URL'
+    'SUPABASE_SERVICE_ROLE_KEY'
+    // Removed service URLs as they're optional for single-container deployment
   ],
   development: ['SUPABASE_URL', 'SUPABASE_ANON_KEY'],
   test: ['SUPABASE_URL', 'SUPABASE_ANON_KEY']
@@ -52,12 +47,12 @@ const serviceUrls = {
     paymentService: process.env.PAYMENT_SERVICE_URL || 'http://localhost:4006'
   },
   production: {
-    userService: process.env.USER_SERVICE_URL,
-    expenseService: process.env.EXPENSE_SERVICE_URL,
-    settlementService: process.env.SETTLEMENT_SERVICE_URL,
-    notificationService: process.env.NOTIFICATION_SERVICE_URL,
-    analyticsService: process.env.ANALYTICS_SERVICE_URL,
-    paymentService: process.env.PAYMENT_SERVICE_URL
+    userService: process.env.USER_SERVICE_URL || 'http://localhost:4001',
+    expenseService: process.env.EXPENSE_SERVICE_URL || 'http://localhost:4002',
+    settlementService: process.env.SETTLEMENT_SERVICE_URL || 'http://localhost:4003',
+    notificationService: process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:4004',
+    analyticsService: process.env.ANALYTICS_SERVICE_URL || 'http://localhost:4005',
+    paymentService: process.env.PAYMENT_SERVICE_URL || 'http://localhost:4006'
   }
 };
 

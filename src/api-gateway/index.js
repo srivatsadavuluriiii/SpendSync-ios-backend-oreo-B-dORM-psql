@@ -4,6 +4,14 @@
  * Main entry point for the API Gateway that routes requests to the appropriate services
  */
 
+console.log('🚀 Starting SpendSync API Gateway...');
+console.log('📊 Environment Variables:');
+console.log(`   NODE_ENV: ${process.env.NODE_ENV}`);
+console.log(`   PORT: ${process.env.PORT}`);
+console.log(`   SUPABASE_URL: ${process.env.SUPABASE_URL ? '✅ Set' : '❌ Missing'}`);
+console.log(`   SUPABASE_ANON_KEY: ${process.env.SUPABASE_ANON_KEY ? '✅ Set' : '❌ Missing'}`);
+console.log(`   SUPABASE_SERVICE_ROLE_KEY: ${process.env.SUPABASE_SERVICE_ROLE_KEY ? '✅ Set' : '❌ Missing'}`);
+
 const express = require('express');
 const morgan = require('morgan');
 const helmet = require('helmet');
@@ -511,12 +519,37 @@ app.use(errorHandler);
 
 // Start server
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(config.port, () => {
-    logger.info(`API Gateway running on port ${config.port}`);
-    logger.info(`Documentation available at http://localhost:${config.port}/api-docs`);
-    logger.info(`Health check available at http://localhost:${config.port}/health`);
-    logger.info(`Metrics available at http://localhost:${config.port}/metrics`);
-    logger.info(`Admin dashboard available at http://localhost:${config.port}/api/v1/dashboard`);
+  const server = app.listen(config.port, '0.0.0.0', () => {
+    logger.info(`🚀 API Gateway starting...`);
+    logger.info(`📊 Environment: ${config.env}`);
+    logger.info(`🌐 Server running on port ${config.port}`);
+    logger.info(`🔗 Documentation available at http://localhost:${config.port}/api-docs`);
+    logger.info(`❤️ Health check available at http://localhost:${config.port}/health`);
+    logger.info(`📈 Metrics available at http://localhost:${config.port}/metrics`);
+    logger.info(`🎛️ Admin dashboard available at http://localhost:${config.port}/api/v1/dashboard`);
+    logger.info(`✅ API Gateway successfully started!`);
+  });
+
+  server.on('error', (error) => {
+    logger.error(`❌ Server error: ${error.message}`);
+    process.exit(1);
+  });
+
+  // Graceful shutdown
+  process.on('SIGTERM', () => {
+    logger.info('🛑 SIGTERM received, shutting down gracefully');
+    server.close(() => {
+      logger.info('✅ Process terminated');
+      process.exit(0);
+    });
+  });
+
+  process.on('SIGINT', () => {
+    logger.info('🛑 SIGINT received, shutting down gracefully');
+    server.close(() => {
+      logger.info('✅ Process terminated');
+      process.exit(0);
+    });
   });
 }
 

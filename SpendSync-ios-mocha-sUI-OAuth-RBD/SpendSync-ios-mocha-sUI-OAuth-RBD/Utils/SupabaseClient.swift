@@ -1,6 +1,6 @@
 import Foundation
 import Combine
-// import Supabase - Temporarily commented out until package is properly installed
+// import Supabase - Package not properly installed yet
 
 // MARK: - Mock Supabase Types (Temporary)
 struct MockSession {
