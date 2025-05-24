@@ -2,7 +2,9 @@ import SwiftUI
 
 struct HomeView: View {
     @StateObject private var viewModel = TransactionViewModel()
+    @EnvironmentObject private var authViewModel: AuthViewModel
     @State private var showAddTransaction = false
+    @State private var showProfileMenu = false
     
     private var balance: String {
         let formatter = NumberFormatter()
@@ -134,6 +136,31 @@ struct HomeView: View {
             }
             .navigationTitle("SpendSync")
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: {
+                        showProfileMenu = true
+                    }) {
+                        HStack(spacing: 8) {
+                            AsyncImage(url: URL(string: authViewModel.userProfile?.avatarUrl ?? "")) { image in
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                            } placeholder: {
+                                Image(systemName: "person.circle.fill")
+                                    .foregroundColor(.blue)
+                            }
+                            .frame(width: 32, height: 32)
+                            .clipShape(Circle())
+                            
+                            if let profile = authViewModel.userProfile {
+                                Text("Hi, \(profile.firstName ?? "User")!")
+                                    .font(.subheadline)
+                                    .foregroundColor(.primary)
+                            }
+                        }
+                    }
+                }
+                
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
                         showAddTransaction = true
@@ -148,6 +175,26 @@ struct HomeView: View {
                     viewModel.addTransaction(transaction)
                     showAddTransaction = false
                 }
+            }
+            .actionSheet(isPresented: $showProfileMenu) {
+                ActionSheet(
+                    title: Text("Profile"),
+                    message: Text(authViewModel.currentUser?.email ?? ""),
+                    buttons: [
+                        .default(Text("View Profile")) {
+                            // TODO: Navigate to profile view
+                            print("Navigate to profile")
+                        },
+                        .default(Text("Settings")) {
+                            // TODO: Navigate to settings
+                            print("Navigate to settings")
+                        },
+                        .destructive(Text("Sign Out")) {
+                            authViewModel.signOut()
+                        },
+                        .cancel()
+                    ]
+                )
             }
         }
     }

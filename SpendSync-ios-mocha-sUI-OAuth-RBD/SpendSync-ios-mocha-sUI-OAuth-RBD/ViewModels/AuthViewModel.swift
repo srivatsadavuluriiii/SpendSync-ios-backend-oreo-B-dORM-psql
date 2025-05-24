@@ -41,11 +41,17 @@ class AuthViewModel: ObservableObject {
     private func loadUserData() {
         Task {
             do {
-                // For mock implementation, we'll just use the current user data
-                // In real implementation, this would load user profile from Supabase
-                print("🔧 Mock loadUserData called")
+                // Load user profile from local storage or Supabase
+                if let profile = supabaseClient.getUserProfile() {
+                    await MainActor.run {
+                        self.userProfile = profile
+                        print("👤 User profile loaded: \(profile.firstName ?? "Unknown") \(profile.lastName ?? "")")
+                    }
+                } else {
+                    print("📝 No user profile found")
+                }
             } catch {
-                DispatchQueue.main.async {
+                await MainActor.run {
                     self.error = error.localizedDescription
                 }
             }
@@ -214,22 +220,23 @@ class AuthViewModel: ObservableObject {
     // MARK: - Profile Management
     
     func createUserProfile(firstName: String?, lastName: String?, avatarUrl: String? = nil) async throws {
-        // For mock implementation, we'll just print
-        print("🔧 Mock createUserProfile called with firstName: \(firstName ?? "nil"), lastName: \(lastName ?? "nil")")
+        try await supabaseClient.createUserProfile(firstName: firstName, lastName: lastName, avatarUrl: avatarUrl)
+        
+        // Reload user data to update the UI
+        loadUserData()
     }
     
     func updateUserProfile(firstName: String?, lastName: String?, avatarUrl: String?, phone: String?) {
         Task {
             do {
-                // For mock implementation, we'll just print
-                print("🔧 Mock updateUserProfile called")
+                // In a real implementation, this would call supabaseClient.updateUserProfile
+                print("🔧 Profile update functionality - to be implemented with real Supabase")
                 
-                DispatchQueue.main.async {
-                    // In real implementation, this would update the userProfile
+                await MainActor.run {
                     print("Profile updated successfully")
                 }
             } catch {
-                DispatchQueue.main.async {
+                await MainActor.run {
                     self.error = error.localizedDescription
                 }
             }

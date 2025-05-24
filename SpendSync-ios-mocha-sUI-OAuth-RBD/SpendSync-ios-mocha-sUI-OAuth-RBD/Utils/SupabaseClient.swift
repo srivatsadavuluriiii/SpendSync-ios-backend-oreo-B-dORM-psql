@@ -4,6 +4,13 @@ import Supabase
 
 // MARK: - Mock Supabase Types (Temporary)
 
+struct JWTUserInfo {
+    let sub: String
+    let email: String
+    let userMetadata: [String: AnyJSON]
+    let appMetadata: [String: AnyJSON]
+}
+
 struct MockUser: Codable, Identifiable {
     let id: UUID
     let email: String?
@@ -206,6 +213,8 @@ class SupabaseClient: ObservableObject {
         }
         
         clearSession()
+        clearUserProfile()
+        print("🚪 User signed out successfully")
     }
     
     func resetPassword(email: String) async throws {
@@ -217,9 +226,11 @@ class SupabaseClient: ObservableObject {
     // MARK: - OAuth Methods
     
     func signInWithGoogle() async throws -> URL {
-        // Use Supabase OAuth endpoint for Google
+        // Use Supabase OAuth endpoint for Google with proper redirect
         let redirectURI = Config.redirectURL.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
         let urlString = "\(Config.supabaseURL)/auth/v1/authorize?provider=google&redirect_to=\(redirectURI)"
+        
+        print("🔧 Google OAuth URL: \(urlString)")
         
         guard let url = URL(string: urlString) else {
             throw MockSupabaseError.networkError("Invalid Google OAuth URL")
@@ -228,9 +239,11 @@ class SupabaseClient: ObservableObject {
     }
     
     func signInWithGitHub() async throws -> URL {
-        // Use Supabase OAuth endpoint for GitHub
+        // Use Supabase OAuth endpoint for GitHub with proper redirect
         let redirectURI = Config.redirectURL.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
         let urlString = "\(Config.supabaseURL)/auth/v1/authorize?provider=github&redirect_to=\(redirectURI)"
+        
+        print("🔧 GitHub OAuth URL: \(urlString)")
         
         guard let url = URL(string: urlString) else {
             throw MockSupabaseError.networkError("Invalid GitHub OAuth URL")
@@ -239,39 +252,181 @@ class SupabaseClient: ObservableObject {
     }
     
     func handleOAuthCallback(url: URL) async throws {
-        // Simulate OAuth callback handling
-        try await Task.sleep(nanoseconds: 500_000_000)
+        print("🔐 Processing OAuth callback URL: \(url)")
         
+        // Parse URL components
+        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+            throw MockSupabaseError.authError("Invalid callback URL")
+        }
+        
+        // Extract tokens from URL fragment (Supabase uses fragment-based OAuth)
+        var tokenParams: [String: String] = [:]
+        
+        if let fragment = components.fragment {
+            let pairs = fragment.components(separatedBy: "&")
+            for pair in pairs {
+                let keyValue = pair.components(separatedBy: "=")
+                if keyValue.count == 2 {
+                    let key = keyValue[0]
+                    let value = keyValue[1].removingPercentEncoding ?? keyValue[1]
+                    tokenParams[key] = value
+                }
+            }
+        }
+        
+        // Check for access token
+        guard let accessToken = tokenParams["access_token"] else {
+            throw MockSupabaseError.authError("No access token found in callback")
+        }
+        
+        let refreshToken = tokenParams["refresh_token"] ?? ""
+        let expiresIn = Int(tokenParams["expires_in"] ?? "3600") ?? 3600
+        let providerToken = tokenParams["provider_token"]
+        
+        print("✅ OAuth tokens extracted successfully")
+        print("🔑 Access Token: \(String(accessToken.prefix(20)))...")
+        print("🔄 Refresh Token: \(String(refreshToken.prefix(20)))...")
+        
+        // Decode JWT to extract user information
+        let userInfo = try decodeJWTUserInfo(from: accessToken)
+        
+        // Create user from decoded JWT
         let user = MockUser(
-            id: UUID(),
-            email: "oauth.user@example.com",
+            id: UUID(uuidString: userInfo.sub) ?? UUID(),
+            email: userInfo.email,
             emailConfirmedAt: Date(),
             phone: nil,
             phoneConfirmedAt: nil,
             createdAt: Date(),
             updatedAt: Date(),
             lastSignInAt: Date(),
-            userMetadata: [
-                "provider": AnyJSON.string("oauth"),
-                "avatar_url": AnyJSON.string("https://example.com/avatar.jpg")
-            ],
-            appMetadata: [:]
+            userMetadata: userInfo.userMetadata,
+            appMetadata: userInfo.appMetadata
         )
         
         let session = MockSession(
-            accessToken: "mock_oauth_token_\(UUID().uuidString)",
-            refreshToken: "mock_oauth_refresh_\(UUID().uuidString)",
-            expiresIn: 3600,
+            accessToken: accessToken,
+            refreshToken: refreshToken,
+            expiresIn: expiresIn,
             tokenType: "bearer",
             user: user
         )
         
-        DispatchQueue.main.async {
+        // Update auth state on main thread
+        await MainActor.run {
             self.session = session
             self.isAuthenticated = true
+            print("🎉 OAuth authentication successful!")
         }
         
         saveSession(session)
+        
+        // Create user profile from OAuth data
+        try await createUserProfileFromOAuth(userInfo: userInfo, userId: user.id)
+    }
+    
+    // MARK: - JWT Decoding
+    
+    private func decodeJWTUserInfo(from token: String) throws -> JWTUserInfo {
+        let parts = token.components(separatedBy: ".")
+        guard parts.count == 3 else {
+            throw MockSupabaseError.authError("Invalid JWT format")
+        }
+        
+        // Decode the payload (second part)
+        var payload = parts[1]
+        
+        // Add padding if needed for base64 decoding
+        while payload.count % 4 != 0 {
+            payload += "="
+        }
+        
+        guard let data = Data(base64Encoded: payload),
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            throw MockSupabaseError.authError("Failed to decode JWT payload")
+        }
+        
+        // Extract user information
+        let sub = json["sub"] as? String ?? ""
+        let email = json["email"] as? String ?? ""
+        let userMetadata = json["user_metadata"] as? [String: Any] ?? [:]
+        let appMetadata = json["app_metadata"] as? [String: Any] ?? [:]
+        
+        // Convert to AnyJSON format
+        let userMetadataJSON = convertToAnyJSON(userMetadata)
+        let appMetadataJSON = convertToAnyJSON(appMetadata)
+        
+        return JWTUserInfo(
+            sub: sub,
+            email: email,
+            userMetadata: userMetadataJSON,
+            appMetadata: appMetadataJSON
+        )
+    }
+    
+    private func convertToAnyJSON(_ dict: [String: Any]) -> [String: AnyJSON] {
+        var result: [String: AnyJSON] = [:]
+        for (key, value) in dict {
+            if let stringValue = value as? String {
+                result[key] = .string(stringValue)
+            } else if let boolValue = value as? Bool {
+                result[key] = .bool(boolValue)
+            } else if let numberValue = value as? Double {
+                result[key] = .number(numberValue)
+            } else if let intValue = value as? Int {
+                result[key] = .number(Double(intValue))
+            }
+        }
+        return result
+    }
+    
+    // MARK: - User Profile Creation
+    
+    private func createUserProfileFromOAuth(userInfo: JWTUserInfo, userId: UUID) async throws {
+        print("👤 Creating user profile from OAuth data...")
+        
+        // Extract user information from metadata
+        let fullName = userInfo.userMetadata["full_name"]?.stringValue ?? 
+                      userInfo.userMetadata["name"]?.stringValue ?? ""
+        let avatarUrl = userInfo.userMetadata["avatar_url"]?.stringValue ?? 
+                       userInfo.userMetadata["picture"]?.stringValue
+        
+        // Split full name into first and last name
+        let nameParts = fullName.components(separatedBy: " ")
+        let firstName = nameParts.first ?? ""
+        let lastName = nameParts.count > 1 ? nameParts.dropFirst().joined(separator: " ") : ""
+        
+        print("📝 Profile data - Name: \(fullName), Email: \(userInfo.email)")
+        print("🖼️ Avatar URL: \(avatarUrl ?? "none")")
+        
+        // Create user profile
+        let profile = UserProfile(
+            id: UUID(),
+            userId: userId,
+            firstName: firstName.isEmpty ? nil : firstName,
+            lastName: lastName.isEmpty ? nil : lastName,
+            avatarUrl: avatarUrl,
+            phone: nil,
+            preferences: nil,
+            createdAt: Date(),
+            updatedAt: Date()
+        )
+        
+        // Save profile locally
+        saveUserProfile(profile)
+        
+        // Sync with backend if we have a valid session
+        if let session = self.session {
+            do {
+                try await APIClient.shared.syncUserProfile(profile, accessToken: session.accessToken)
+                print("🔄 Profile synced with backend")
+            } catch {
+                print("⚠️ Failed to sync profile with backend: \(error.localizedDescription)")
+                // Continue anyway - local profile is saved
+            }
+        }
+        
+        print("✅ User profile created successfully!")
     }
     
     // MARK: - User Methods
@@ -298,6 +453,47 @@ class SupabaseClient: ObservableObject {
     
     private func clearSession() {
         UserDefaults.standard.removeObject(forKey: "mock_supabase_session")
+    }
+    
+    // MARK: - Profile Management
+    
+    func createUserProfile(firstName: String?, lastName: String?, avatarUrl: String? = nil) async throws {
+        guard let user = getCurrentUser() else {
+            throw MockSupabaseError.userNotAuthenticated
+        }
+        
+        let profile = UserProfile(
+            id: UUID(),
+            userId: user.id,
+            firstName: firstName,
+            lastName: lastName,
+            avatarUrl: avatarUrl,
+            phone: nil,
+            preferences: nil,
+            createdAt: Date(),
+            updatedAt: Date()
+        )
+        
+        saveUserProfile(profile)
+        print("✅ User profile created manually!")
+    }
+    
+    func getUserProfile() -> UserProfile? {
+        guard let data = UserDefaults.standard.data(forKey: "user_profile"),
+              let profile = try? JSONDecoder().decode(UserProfile.self, from: data) else {
+            return nil
+        }
+        return profile
+    }
+    
+    private func saveUserProfile(_ profile: UserProfile) {
+        if let data = try? JSONEncoder().encode(profile) {
+            UserDefaults.standard.set(data, forKey: "user_profile")
+        }
+    }
+    
+    private func clearUserProfile() {
+        UserDefaults.standard.removeObject(forKey: "user_profile")
     }
 }
 

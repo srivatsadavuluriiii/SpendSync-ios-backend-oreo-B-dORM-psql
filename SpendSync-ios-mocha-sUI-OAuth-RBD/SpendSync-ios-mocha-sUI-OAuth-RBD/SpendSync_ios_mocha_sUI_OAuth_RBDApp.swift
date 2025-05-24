@@ -20,9 +20,8 @@ struct SpendSync_ios_mocha_sUI_OAuth_RBDApp: App {
         // Configure Google Sign-In
         configureGoogleSignIn()
         
-        // Initialize the APIClient if still needed for backend communication
-        let apiClient = APIClient.self
-        apiClient.initialize()
+        // APIClient is already initialized as a singleton - no need to call initialize()
+        print("🚀 SpendSync app initialized")
     }
     
     private func configureGoogleSignIn() {

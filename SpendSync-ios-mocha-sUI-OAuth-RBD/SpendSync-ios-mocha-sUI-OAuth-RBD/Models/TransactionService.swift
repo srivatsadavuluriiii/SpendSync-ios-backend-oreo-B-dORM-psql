@@ -11,96 +11,35 @@ class TransactionService {
     
     private init() {
         // Initialize with mock data for development
-        if Config.environment == .development && !TokenManager.isAuthenticated() {
-            generateMockData()
-        }
+        generateMockData()
     }
     
     // MARK: - Network Operations
     
     func fetchTransactions(completion: @escaping ([Transaction]?, Error?) -> Void) {
-        // If not authenticated, return cached data
-        if !TokenManager.isAuthenticated() {
-            completion(cachedTransactions, nil)
-            return
-        }
-        
-        APIClient.getTransactions()
-            .receive(on: DispatchQueue.main)
-            .sink(
-                receiveCompletion: { completionStatus in
-                    if case .failure(let error) = completionStatus {
-                        completion(nil, error)
-                    }
-                },
-                receiveValue: { [weak self] transactions in
-                    guard let self = self else { return }
-                    self.cachedTransactions = transactions
-                    completion(transactions, nil)
-                }
-            )
-            .store(in: &cancellables)
+        // For now, always return cached data since we don't have transaction endpoints yet
+        // In a real implementation, this would call APIClient.shared.fetchTransactions()
+        completion(cachedTransactions, nil)
     }
     
     func addTransaction(_ transaction: Transaction, completion: @escaping (Transaction?, Error?) -> Void) {
-        // If not authenticated, just add to local cache
-        if !TokenManager.isAuthenticated() {
-            var newTransaction = transaction
-            newTransaction.id = UUID().uuidString
-            cachedTransactions.insert(newTransaction, at: 0)
-            completion(newTransaction, nil)
-            return
-        }
-        
-        APIClient.addTransaction(transaction: transaction)
-            .receive(on: DispatchQueue.main)
-            .sink(
-                receiveCompletion: { completionStatus in
-                    if case .failure(let error) = completionStatus {
-                        completion(nil, error)
-                    }
-                },
-                receiveValue: { [weak self] transaction in
-                    guard let self = self else { return }
-                    self.cachedTransactions.insert(transaction, at: 0)
-                    completion(transaction, nil)
-                }
-            )
-            .store(in: &cancellables)
+        // For now, just add to local cache
+        // In a real implementation, this would call APIClient.shared.addTransaction()
+        var newTransaction = transaction
+        newTransaction.id = UUID().uuidString
+        cachedTransactions.insert(newTransaction, at: 0)
+        completion(newTransaction, nil)
     }
     
     func removeTransaction(id: String, completion: @escaping (Bool, Error?) -> Void) {
-        // If not authenticated, just remove from local cache
-        if !TokenManager.isAuthenticated() {
-            if let index = cachedTransactions.firstIndex(where: { $0.id == id }) {
-                cachedTransactions.remove(at: index)
-                completion(true, nil)
-            } else {
-                completion(false, NSError(domain: "TransactionService", code: 404, userInfo: [NSLocalizedDescriptionKey: "Transaction not found"]))
-            }
-            return
+        // For now, just remove from local cache
+        // In a real implementation, this would call APIClient.shared.deleteTransaction()
+        if let index = cachedTransactions.firstIndex(where: { $0.id == id }) {
+            cachedTransactions.remove(at: index)
+            completion(true, nil)
+        } else {
+            completion(false, NSError(domain: "TransactionService", code: 404, userInfo: [NSLocalizedDescriptionKey: "Transaction not found"]))
         }
-        
-        APIClient.deleteTransaction(id: id)
-            .receive(on: DispatchQueue.main)
-            .sink(
-                receiveCompletion: { completionStatus in
-                    if case .failure(let error) = completionStatus {
-                        completion(false, error)
-                    }
-                },
-                receiveValue: { [weak self] _ in
-                    guard let self = self else { return }
-                    
-                    // Remove from local cache after successful API delete
-                    if let index = self.cachedTransactions.firstIndex(where: { $0.id == id }) {
-                        self.cachedTransactions.remove(at: index)
-                    }
-                    
-                    completion(true, nil)
-                }
-            )
-            .store(in: &cancellables)
     }
     
     // MARK: - Local Cache Operations

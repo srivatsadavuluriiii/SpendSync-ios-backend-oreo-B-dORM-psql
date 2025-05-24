@@ -88,17 +88,6 @@ struct LoginView: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(Color.gray.opacity(0.1))
-                    .cornerRadius(8)
-                    
-                    Button("Use Test Credentials") {
-                        email = "test@example.com"
-                        password = "password123"
-                    }
-                    .font(.caption)
-                    .foregroundColor(.blue)
                 }
                 .padding(.top, 16)
                 

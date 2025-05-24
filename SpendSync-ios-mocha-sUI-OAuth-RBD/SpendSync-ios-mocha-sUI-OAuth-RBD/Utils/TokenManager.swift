@@ -117,31 +117,19 @@ class TokenManager {
     }
     
     static func refreshTokenIfNeeded() async {
-        guard let refreshToken = getRefreshToken() else {
-            print("⚠️ No refresh token available")
+        // For now, just check if token exists and is valid
+        // In a real implementation, this would call the refresh endpoint
+        guard let token = getToken() else {
+            print("⚠️ No token found, user needs to re-authenticate")
             return
         }
         
-        do {
-            // Create a publisher for the refresh token API call
-            let publisher: AnyPublisher<AuthResponse, APIError> = APIClient.refreshToken(refreshToken: refreshToken)
-            
-            // Convert the publisher to an async/await call
-            let response = try await publisher.async()
-            
-            // Save the new tokens
-            saveToken(response.token)
-            if let newRefreshToken = response.refreshToken {
-                saveRefreshToken(newRefreshToken)
-            }
-            
-            // Notify listeners about the token refresh
-            tokenRefreshPublisher.send(response.token)
-            print("✅ Token refreshed successfully")
-        } catch {
-            print("❌ Failed to refresh token: \(error.localizedDescription)")
-            // Don't sign out immediately on failure - the next API call will fail with 401
-            // and the app can handle that appropriately
+        // Simple token validation (in real implementation, check expiration)
+        if token.isEmpty {
+            print("⚠️ Invalid token, user needs to re-authenticate")
+            clearAllAuthData()
+        } else {
+            print("✅ Token is valid")
         }
     }
     
@@ -250,6 +238,11 @@ class TokenManager {
     }
     
     // MARK: - Complete Authentication Cleanup
+    
+    static func clearTokens() {
+        deleteToken()
+        deleteRefreshToken()
+    }
     
     static func clearAllAuthData() {
         deleteToken()
