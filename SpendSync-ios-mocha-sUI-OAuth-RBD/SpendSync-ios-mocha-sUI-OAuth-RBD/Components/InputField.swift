@@ -74,7 +74,7 @@ struct InputField: View {
                 .foregroundColor(.primary)
             
             // Text Field
-            Group {
+            SwiftUI.Group {
                 if isSecure {
                     SecureField(placeholder, text: $text)
                         .keyboardType(keyboardType)

@@ -76,12 +76,12 @@ struct LandingView: View {
                     
                     // OAuth Buttons
                     Button(action: {
-                        authViewModel.signInWithApple()
+                        authViewModel.signInWithGitHub()
                     }) {
                         HStack {
-                            Image(systemName: "apple.logo")
+                            Image(systemName: "globe")
                                 .font(.title3)
-                            Text("Continue with Apple")
+                            Text("Continue with GitHub")
                                 .fontWeight(.semibold)
                         }
                         .frame(maxWidth: .infinity)
