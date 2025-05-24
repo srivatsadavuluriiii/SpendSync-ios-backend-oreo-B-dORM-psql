@@ -73,6 +73,35 @@ struct LoginView: View {
                         .padding(.top, 8)
                 }
                 
+                // Test Credentials Info (for development)
+                VStack(spacing: 8) {
+                    Text("Test Credentials")
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.secondary)
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Email: test@example.com")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text("Password: password123")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(Color.gray.opacity(0.1))
+                    .cornerRadius(8)
+                    
+                    Button("Use Test Credentials") {
+                        email = "test@example.com"
+                        password = "password123"
+                    }
+                    .font(.caption)
+                    .foregroundColor(.blue)
+                }
+                .padding(.top, 16)
+                
                 Spacer()
                 
                 // Sign Up Prompt
@@ -95,7 +124,7 @@ struct LoginView: View {
         .sheet(isPresented: $showForgotPassword) {
             ForgotPasswordView()
         }
-        .onChange(of: authViewModel.isAuthenticated) { isAuthenticated in
+        .onChange(of: authViewModel.isAuthenticated) { _, isAuthenticated in
             if isAuthenticated {
                 dismiss()
             }

@@ -55,6 +55,8 @@ class AuthViewModel: ObservableObject {
     // MARK: - Authentication Methods
     
     func signUp(email: String, password: String, firstName: String? = nil, lastName: String? = nil) {
+        guard !isLoading else { return }
+        
         isLoading = true
         error = nil
         
@@ -67,12 +69,12 @@ class AuthViewModel: ObservableObject {
                     lastName: lastName
                 )
                 
-                DispatchQueue.main.async {
+                await MainActor.run {
                     self.isLoading = false
                     // User will be set automatically via the auth state listener
                 }
             } catch {
-                DispatchQueue.main.async {
+                await MainActor.run {
                     self.isLoading = false
                     self.error = error.localizedDescription
                 }
@@ -81,6 +83,8 @@ class AuthViewModel: ObservableObject {
     }
     
     func signIn(email: String, password: String) {
+        guard !isLoading else { return }
+        
         isLoading = true
         error = nil
         
@@ -88,12 +92,12 @@ class AuthViewModel: ObservableObject {
             do {
                 let response = try await supabaseClient.signIn(email: email, password: password)
                 
-                DispatchQueue.main.async {
+                await MainActor.run {
                     self.isLoading = false
                     // User will be set automatically via the auth state listener
                 }
             } catch {
-                DispatchQueue.main.async {
+                await MainActor.run {
                     self.isLoading = false
                     self.error = error.localizedDescription
                 }
@@ -142,6 +146,8 @@ class AuthViewModel: ObservableObject {
     // MARK: - OAuth Authentication
     
     func signInWithGoogle() {
+        guard !isLoading else { return }
+        
         isLoading = true
         error = nil
         
@@ -149,12 +155,13 @@ class AuthViewModel: ObservableObject {
             do {
                 let url = try await supabaseClient.signInWithGoogle()
                 
-                DispatchQueue.main.async {
+                await MainActor.run {
                     // Open the OAuth URL in Safari
                     UIApplication.shared.open(url)
+                    // Don't set isLoading to false here - wait for callback
                 }
             } catch {
-                DispatchQueue.main.async {
+                await MainActor.run {
                     self.error = "Failed to initiate Google sign-in: \(error.localizedDescription)"
                     self.isLoading = false
                 }
@@ -163,6 +170,8 @@ class AuthViewModel: ObservableObject {
     }
     
     func signInWithGitHub() {
+        guard !isLoading else { return }
+        
         isLoading = true
         error = nil
         
@@ -170,12 +179,13 @@ class AuthViewModel: ObservableObject {
             do {
                 let url = try await supabaseClient.signInWithGitHub()
                 
-                DispatchQueue.main.async {
+                await MainActor.run {
                     // Open the OAuth URL in Safari
                     UIApplication.shared.open(url)
+                    // Don't set isLoading to false here - wait for callback
                 }
             } catch {
-                DispatchQueue.main.async {
+                await MainActor.run {
                     self.error = "Failed to initiate GitHub sign-in: \(error.localizedDescription)"
                     self.isLoading = false
                 }
@@ -189,11 +199,11 @@ class AuthViewModel: ObservableObject {
             do {
                 try await supabaseClient.handleOAuthCallback(url: url)
                 
-                DispatchQueue.main.async {
+                await MainActor.run {
                     self.isLoading = false
                 }
             } catch {
-                DispatchQueue.main.async {
+                await MainActor.run {
                     self.error = "OAuth callback failed: \(error.localizedDescription)"
                     self.isLoading = false
                 }

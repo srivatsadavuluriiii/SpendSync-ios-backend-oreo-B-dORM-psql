@@ -57,6 +57,7 @@ enum MockSupabaseError: Error, LocalizedError {
     case profileUpdateFailed
     case expenseCreationFailed
     case networkError(String)
+    case authError(String)
     
     var errorDescription: String? {
         switch self {
@@ -70,6 +71,8 @@ enum MockSupabaseError: Error, LocalizedError {
             return "Failed to create expense"
         case .networkError(let message):
             return "Network error: \(message)"
+        case .authError(let message):
+            return "Authentication error: \(message)"
         }
     }
 }
@@ -135,38 +138,65 @@ class SupabaseClient: ObservableObject {
     }
     
     func signIn(email: String, password: String) async throws -> MockAuthResponse {
-        // Simulate API delay
-        try await Task.sleep(nanoseconds: 1_000_000_000)
+        print("🔧 Mock signIn called with email: \(email)")
         
-        let user = MockUser(
-            id: UUID(),
-            email: email,
-            emailConfirmedAt: Date(),
-            phone: nil,
-            phoneConfirmedAt: nil,
-            createdAt: Date().addingTimeInterval(-86400), // 1 day ago
-            updatedAt: Date(),
-            lastSignInAt: Date(),
-            userMetadata: [:],
-            appMetadata: [:]
-        )
+        // Simulate network delay
+        try await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
         
-        let session = MockSession(
-            accessToken: "mock_access_token_\(UUID().uuidString)",
-            refreshToken: "mock_refresh_token_\(UUID().uuidString)",
-            expiresIn: 3600,
-            tokenType: "bearer",
-            user: user
-        )
-        
-        DispatchQueue.main.async {
-            self.session = session
-            self.isAuthenticated = true
+        // Basic validation
+        guard !email.isEmpty, !password.isEmpty else {
+            throw MockSupabaseError.authError("Email and password are required")
         }
         
-        saveSession(session)
+        guard email.contains("@") else {
+            throw MockSupabaseError.authError("Invalid email format")
+        }
         
-        return MockAuthResponse(user: user, session: session)
+        guard password.count >= 6 else {
+            throw MockSupabaseError.authError("Password must be at least 6 characters")
+        }
+        
+        // For demo purposes, only allow specific test credentials
+        // In real implementation, this would validate against Supabase
+        let validCredentials = [
+            "test@example.com": "password123",
+            "demo@spendsync.com": "demo123",
+            "user@test.com": "test123"
+        ]
+        
+        if let validPassword = validCredentials[email.lowercased()], validPassword == password {
+            // Create mock user for successful login
+            let user = MockUser(
+                id: UUID(),
+                email: email,
+                emailConfirmedAt: Date(),
+                phone: nil,
+                phoneConfirmedAt: nil,
+                createdAt: Date(),
+                updatedAt: Date(),
+                lastSignInAt: Date(),
+                userMetadata: ["name": .string("Test User")],
+                appMetadata: [:]
+            )
+            
+            let session = MockSession(
+                accessToken: "mock_access_token_\(UUID().uuidString)",
+                refreshToken: "mock_refresh_token_\(UUID().uuidString)",
+                expiresIn: 3600,
+                tokenType: "bearer",
+                user: user
+            )
+            
+            // Update auth state
+            DispatchQueue.main.async {
+                self.session = session
+                self.isAuthenticated = true
+            }
+            
+            return MockAuthResponse(user: user, session: session)
+        } else {
+            throw MockSupabaseError.authError("Invalid email or password")
+        }
     }
     
     func signOut() async throws {
@@ -187,15 +217,23 @@ class SupabaseClient: ObservableObject {
     // MARK: - OAuth Methods
     
     func signInWithGoogle() async throws -> URL {
-        guard let url = URL(string: "https://accounts.google.com/oauth/authorize?client_id=\(Config.googleClientID)&redirect_uri=\(Config.redirectURL)&response_type=code&scope=openid%20email%20profile") else {
-            throw MockSupabaseError.networkError("Invalid OAuth URL")
+        // Use Supabase OAuth endpoint for Google
+        let redirectURI = Config.redirectURL.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let urlString = "\(Config.supabaseURL)/auth/v1/authorize?provider=google&redirect_to=\(redirectURI)"
+        
+        guard let url = URL(string: urlString) else {
+            throw MockSupabaseError.networkError("Invalid Google OAuth URL")
         }
         return url
     }
     
     func signInWithGitHub() async throws -> URL {
-        guard let url = URL(string: "https://github.com/login/oauth/authorize?client_id=\(Config.githubClientID)&redirect_uri=\(Config.redirectURL)&scope=user:email") else {
-            throw MockSupabaseError.networkError("Invalid OAuth URL")
+        // Use Supabase OAuth endpoint for GitHub
+        let redirectURI = Config.redirectURL.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let urlString = "\(Config.supabaseURL)/auth/v1/authorize?provider=github&redirect_to=\(redirectURI)"
+        
+        guard let url = URL(string: urlString) else {
+            throw MockSupabaseError.networkError("Invalid GitHub OAuth URL")
         }
         return url
     }
